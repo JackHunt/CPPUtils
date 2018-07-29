@@ -61,87 +61,87 @@ namespace CPPUtils::Iterators {
             //
         }
 
-        inline value_type const &base() const {
+        value_type const &base() const {
             return counter;
         }
 
-        inline reference operator*() const {
+        reference operator*() const {
             return counter;
         }
 
-        inline CountingIterator &operator++() {
+        CountingIterator &operator++() {
             ++counter;
             return *this;
         }
 
-        inline CountingIterator &operator--() {
+        CountingIterator &operator--() {
             --counter;
             return *this;
         }
 
-        inline CountingIterator operator++(int) {
+        CountingIterator operator++(int) {
             CountingIterator tmp(*this);
             ++counter;
             return tmp;
         }
 
-        inline CountingIterator operator--(int) {
+        CountingIterator operator--(int) {
             CountingIterator tmp(*this);
             --counter;
             return tmp;
         }
 
-        inline CountingIterator &operator+=(difference_type n) {
+        CountingIterator &operator+=(difference_type n) {
             counter += n;
             return *this;
         }
 
-        inline CountingIterator &operator-=(difference_type n) {
+        CountingIterator &operator-=(difference_type n) {
             counter -= n;
             return *this;
         }
 
-        inline difference_type operator-(const CountingIterator &rhs) const {
+        difference_type operator-(const CountingIterator &rhs) const {
             return counter - rhs.base();
         }
 
-        inline CountingIterator operator+(difference_type rhs) const {
+        CountingIterator operator+(difference_type rhs) const {
             return CountingIterator(counter + rhs);
         }
 
-        inline CountingIterator operator-(difference_type rhs) const {
+        CountingIterator operator-(difference_type rhs) const {
             return CountingIterator(counter - rhs);
         }
 
-        friend inline CountingIterator operator+(difference_type lhs, const CountingIterator &rhs) {
+        friend CountingIterator operator+(difference_type lhs, const CountingIterator &rhs) {
             return CountingIterator(lhs + rhs.base());
         }
 
-        friend inline CountingIterator operator-(difference_type lhs, const CountingIterator &rhs) {
+        friend CountingIterator operator-(difference_type lhs, const CountingIterator &rhs) {
             return CountingIterator(lhs - rhs.base());
         }
 
-        inline bool operator==(const CountingIterator &rhs) const {
+        bool operator==(const CountingIterator &rhs) const {
             return counter == rhs.base();
         }
 
-        inline bool operator!=(const CountingIterator &rhs) const {
+        bool operator!=(const CountingIterator &rhs) const {
             return counter != rhs.base();
         }
 
-        inline bool operator>(const CountingIterator &rhs) const {
+        bool operator>(const CountingIterator &rhs) const {
             return counter > rhs.base();
         }
 
-        inline bool operator<(const CountingIterator &rhs) const {
+        bool operator<(const CountingIterator &rhs) const {
             return counter < rhs.base();
         }
 
-        inline bool operator>=(const CountingIterator &rhs) const {
+        bool operator>=(const CountingIterator &rhs) const {
             return counter >= rhs.base();
         }
 
-        inline bool operator<=(const CountingIterator &rhs) const {
+        bool operator<=(const CountingIterator &rhs) const {
             return counter <= rhs.base();
         }
     };
