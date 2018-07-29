@@ -44,7 +44,7 @@ namespace CPPUtils::IO {
     template<typename R, typename I>
     class CSVFile {
     public:
-        // Parsable token types.
+        // Parseable token types.
         enum class TokenType : short {
             REAL,
             INTEGER,
