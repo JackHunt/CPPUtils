@@ -30,19 +30,36 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CPP_UTILS_CSV_READER
-#define CPP_UTILS_CSV_READER
+#ifndef CPP_UTILS_CSV_FILE
+#define CPP_UTILS_CSV_FILE
 
 #include <string>
 #include <variant>
 #include <vector>
+#include <memory>
+#include <fstream>
+#include <sstream>
 
 namespace CPPUtils::IO {
-    template<typename T, typename I>
+    template<typename R, typename I>
     class CSVFile {
-        using CSVRow = std::variant<T, I, bool, std::string>;
+    public:
+        // Parsable token types.
+        enum class TokenType : short {
+            REAL,
+            INTEGER,
+            BOOLEAN,
+            STRING
+        }
+
+        // Row type.
+        using CSVRow = std::variant<R, I, bool, std::string>;
 
     private:
+        // Type of each column. Length determines number of columns.
+        std::vector<TokenTypes> types;
+
+        // CSV lines stored here.
         std::vector<CSVRow> data;
 
     public:
@@ -50,12 +67,48 @@ namespace CPPUtils::IO {
             //
         }
 
+        CSVFile(const std::vector<TokenType> &types) : types(types) {
+            //
+        }
+
         virtual ~CSVFile() {
             //
         }
         
-        void readFile() {
+        void readFile(const std::string &fileName) {
+            // Make input stream.
+            std::unique_ptr<std::ifstream> inStr(new std::ifstream(), 
+                                                 [](std::ifstream *s) { s->close(); });
+        }
+
+        void writeFile(const std::string &fileName) const {
+            // Make output stream.
+            std::unique_ptr<std::ofstream> inStr(new std::ofstream(),
+                                                 [](std::ifstream *s) { s->close(); });
+        }
+
+        void appendRow(const std::string &row) {
             //
+        }
+
+        void appendRow(const CSVRow &row) {
+            //
+        }
+
+        void append(const CSVFile &csvFile) {
+            // Iterate over csvFile
+        }
+
+        const std::vector<CSVRow> &getData() const {
+            //
+        }
+
+        std::vector< std::vector<R> > getDataNumeric() const {
+            //
+        }
+
+        size_t getNumRows() const {
+            return data.size();
         }
     };
 }
