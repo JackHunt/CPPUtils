@@ -146,10 +146,10 @@ namespace CPPUtils::Iterators {
             return counter <= rhs.base();
         }
 
-		friend std::ostream &operator<<(std::ostream &lhs, const CountingIterator &rhs) {
-			lhs << *rhs;
-			return lhs;
-		}
+        friend std::ostream &operator<<(std::ostream &lhs, const CountingIterator &rhs) {
+            lhs << *rhs;
+            return lhs;
+        }
     };
 }
 
