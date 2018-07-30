@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPP_UTILS_COUNTING_ITERATOR
 
 #include <iterator>
+#include <ostream>
 
 namespace CPPUtils::Iterators {
     template<typename T>
@@ -144,6 +145,11 @@ namespace CPPUtils::Iterators {
         bool operator<=(const CountingIterator &rhs) const {
             return counter <= rhs.base();
         }
+
+		friend std::ostream &operator<<(std::ostream &lhs, const CountingIterator &rhs) {
+			lhs << *rhs;
+			return lhs;
+		}
     };
 }
 
