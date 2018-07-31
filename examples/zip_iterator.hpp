@@ -10,7 +10,6 @@
 
 namespace CPPUtils::Examples {
 	inline void zip_iterator_example() {
-		//using CPPUtils::Iterators::ZipIterator;
         using CPPUtils::Iterators::ZipperFactory;
 
 		// Type aliases, just for readability.

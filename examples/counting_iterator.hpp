@@ -6,7 +6,8 @@
 
 namespace CPPUtils::Examples {
 	inline void counting_iterator_example() {
-		using CPPUtils::Iterators::CountingIterator;
+		using CPPUtils::Iterators::Counter;
+
 
 		const int min = 1;
 		const int max = 10;
@@ -23,11 +24,10 @@ namespace CPPUtils::Examples {
 		std::cout << "]" << std::endl;
 
 		// Test CountingIterator.
-		CountingIterator<int> begin(min);
-		CountingIterator<int> end(max);
-		std::cout << "A CountingIterator yields the following: " << std::endl;
+        Counter<int> c(min, max);
+		std::cout << "A Counter yields the following: " << std::endl;
 		std::cout << "[";
-		for (auto iter = begin; iter != end; iter++) {
+		for (auto iter = c.begin(); iter != c.end(); iter++) {
 			std::cout << iter << ",";
 		}
 		std::cout << "]" << std::endl;
