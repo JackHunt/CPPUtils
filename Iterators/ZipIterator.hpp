@@ -45,16 +45,16 @@ namespace CPPUtils::Iterators {
     // Pull in tupleFor to apply per-element lambda's to a tuple.
     using CPPUtils::ContainerTools::Tuple::tupleFor;
 
-    template<typename T, typename... U>
+    template<typename... T>
     class ZipIterator {
     public:
-        using value_type = std::tuple<T, U...>;
+        using value_type = std::tuple<T...>;
         using reference = const value_type&;
         using pointer = const value_type*;
         using difference_type = typename std::iterator<std::random_access_iterator_tag, value_type>::difference_type;
         using iterator_category = std::random_access_iterator_tag;
 
-    private:
+    protected:
         value_type val;
 
     public:
@@ -65,6 +65,10 @@ namespace CPPUtils::Iterators {
         }
 
         ZipIterator(const ZipIterator &iter) : val(iter.base()) {
+            //
+        }
+
+        virtual ~ZipIterator() {
             //
         }
 
@@ -159,50 +163,87 @@ namespace CPPUtils::Iterators {
             return val <= rhs.base();
         }
     };
-    /*
-    template<typename... T>
+
+    template<typename T>
     class Zipper {
-    private:
-        template<typename F>
-        static void doVariadic(const F &func) {
-            return;
+    protected:
+        T beginIter, endIter;
+
+    public:
+        Zipper() = delete;
+
+        Zipper(T beginIter, T endIter) :
+            beginIter(beginIter),
+            endIter(endIter) {
+            //
         }
 
-        template<typename F, typename U, typename... V>
-        static void doVariadic(const F &func, const U &head, const V& ...tail) {
-            func(head);
-            doVariadic(func, tail...);
+        virtual ~Zipper(){
+            //
+        }
+
+        const T &begin() const {
+            return beginIter;
+        }
+
+        const T &end() const {
+            return endIter;
+        }
+
+        T &begin() {
+            return beginIter;
+        }
+
+        T &end() {
+            return endIter;
+        }
+    };
+
+    template<typename... T>
+    class ZipperFactory {
+    protected:
+        template<typename U, typename... V>
+        static std::vector<size_t> getLengths(std::vector<size_t> lengths, const U &head, const V& ...tail) {
+            lengths.push_back(head.size());
+            return getLengths(lengths, tail...);
+        }
+
+        static std::vector<size_t> getLengths(std::vector<size_t> lengths) {
+            return lengths;
+        }
+
+        template<typename W, typename U, typename... V>
+        static auto getIterators(W tuplePair, size_t maxLen, const U& head, const V& ...tail) {
+            // Get begin iterator.
+            auto iter = head.begin();
+            const auto beginIter = std::tuple_cat(tuplePair.first, std::make_tuple(iter));
+            
+            // Get truncated end iterator.
+            std::advance(iter, maxLen);
+            const auto endIter = std::tuple_cat(tuplePair.second, std::make_tuple(iter));
+            
+            return getIterators(std::make_pair(beginIter, endIter), maxLen, tail...);
+        }
+
+        template<typename W>
+        static auto getIterators(W tuplePair, size_t maxLen) {
+            return tuplePair;
         }
 
     public:
-        Zipper(const T&... containers) {
+        auto operator()(const T&... containers) const {
             // Get container lengths and min length.
-            std::vector<size_t> lengths;
-            doVariadic([&lengths, &containers...](const auto &c) { lengths.push_back(c.size()); }, containers...);
+            auto lengths = getLengths(std::vector<size_t>(), containers...);
             const size_t minLength = *std::min_element(lengths.begin(), lengths.end());
 
+            // Get iterators.
+            const auto emptyPair = std::make_pair(std::tuple<>(), std::tuple<>());
+            const auto iterators = getIterators(emptyPair, minLength, containers...);
+
             // Get begin and end iterators.
-            std::tuple<> begin;
-            std::tuple<> end;
-            doVariadic([&](const auto &c) {
-                std::tuple_cat(begin, std::tuple<c.iterator>(c.begin()));
-                std::tuple_cat(end, std::advance(c.begin(), std::tuple<c.iterator>(minLength)));
-            }, containers...);
-        }
-
-        virtual ~Zipper() {
-            //
-        }
-
-        auto begin() {
-            //
-        }
-
-        auto end() {
-            //
+            return Zipper(ZipIterator(iterators.first), ZipIterator(iterators.second));
         }
     };
-    */
 }
 
 #endif
