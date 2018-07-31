@@ -151,6 +151,47 @@ namespace CPPUtils::Iterators {
             return lhs;
         }
     };
+
+    template<typename T>
+    class Counter {
+    protected:
+        CountingIterator<T> beginIter, endIter;
+
+    public:
+        Counter() = delete;
+
+        Counter(T max) :
+            beginIter(CountingIterator<T>(0)),
+            endIter(CountingIterator<T>(max)) {
+            //
+        }
+
+        Counter(T min, T max) :
+            beginIter(CountingIterator<T>(min)),
+            endIter(CountingIterator<T>(max)) {
+            //
+        }
+
+        virtual ~Counter() {
+            //
+        }
+
+        const CountingIterator<T> &begin() const {
+            return beginIter;
+        }
+
+        const CountingIterator<T> &end() const {
+            return endIter;
+        }
+
+        CountingIterator<T> &begin() {
+            return beginIter;
+        }
+
+        CountingIterator<T> &end() {
+            return endIter;
+        }
+    };
 }
 
 #endif

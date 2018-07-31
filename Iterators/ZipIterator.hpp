@@ -216,11 +216,11 @@ namespace CPPUtils::Iterators {
         static auto getIterators(W tuplePair, size_t maxLen, const U& head, const V& ...tail) {
             // Get begin iterator.
             auto iter = head.begin();
-            const auto beginIter = std::tuple_cat(tuplePair.first, std::make_tuple(iter));
+            auto beginIter = std::tuple_cat(tuplePair.first, std::make_tuple(iter));
             
             // Get truncated end iterator.
             std::advance(iter, maxLen);
-            const auto endIter = std::tuple_cat(tuplePair.second, std::make_tuple(iter));
+            auto endIter = std::tuple_cat(tuplePair.second, std::make_tuple(iter));
             
             return getIterators(std::make_pair(beginIter, endIter), maxLen, tail...);
         }
@@ -233,12 +233,12 @@ namespace CPPUtils::Iterators {
     public:
         auto operator()(const T&... containers) const {
             // Get container lengths and min length.
-            auto lengths = getLengths(std::vector<size_t>(), containers...);
+            const auto lengths = getLengths(std::vector<size_t>(), containers...);
             const size_t minLength = *std::min_element(lengths.begin(), lengths.end());
 
             // Get iterators.
-            const auto emptyPair = std::make_pair(std::tuple<>(), std::tuple<>());
-            const auto iterators = getIterators(emptyPair, minLength, containers...);
+            auto emptyPair = std::make_pair(std::tuple<>(), std::tuple<>());
+            auto iterators = getIterators(emptyPair, minLength, containers...);
 
             // Get begin and end iterators.
             return Zipper(ZipIterator(iterators.first), ZipIterator(iterators.second));

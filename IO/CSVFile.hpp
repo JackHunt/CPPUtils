@@ -41,22 +41,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 #include "../StringManipulation/Tokenizing.hpp"
+#include "../Iterators/ZipIterator.hpp"
 
 namespace CPPUtils::IO {
     template<typename R, typename I>
     class CSVFile {
-    protected:
-        // Type of each column. Length determines number of columns.
-        std::vector<TokenTypes> types;
-
-        // CSV lines stored here.
-        std::vector<CSVRow> data;
-
     public:
         // Parseable token types.
-        enum class TokenType : short {
+        enum class ElementType : short {
             REAL,
             INTEGER,
             BOOLEAN,
@@ -67,7 +62,29 @@ namespace CPPUtils::IO {
         using CSVElement = std::variant<R, I, bool, std::string>; 
         using CSVRow = std::vector<CSVElement>;
 
+        // Clean up stream ptrs.
+        template<typename T>
+        using StreamPtr = std::unique_ptr< T, std::function<void(T*)> >;
+
+    protected:
+        // Type of each column. Length determines number of columns.
+        std::vector<ElementType> types;
+
+        // CSV lines stored here.
+        std::vector<CSVRow> data;
+
       protected:
+          template<typename U>
+          static U getRawFromElement(const CSVElement &element) {
+              try {
+                  return std::get<U>(element);
+              }
+              catch (const std::invalid_argument &e) {
+                  std::cerr << "CSV: Error extracting element. Incorrect type." << std::endl;
+                  throw e;
+              }
+          }
+
         CSVRow parseTokens(const std::vector<std::string> &tokens) {
             if (types.size() != 0) {
                 assert(tokens.size() == types.size());
@@ -75,39 +92,43 @@ namespace CPPUtils::IO {
 
             // For each token, find it's type and add.
             CSVRow row;
-            std::vector<TokenTypes> parsedTypes;
+            std::vector<ElementType> parsedTypes;
             for (const auto &token : tokens) {
-                // First try floating point.
+                // First try integer if obviously not an int (containing a ',').
+                if (token.find(".") == std::string::npos) {
+                    try {
+                        const I val = static_cast<I>(std::stoll(token));
+                        row.push_back(CSVElement({ val }));
+                        parsedTypes.push_back(ElementType::INTEGER);
+                        continue;
+                    }
+                    catch (const std::invalid_argument &e) {}
+                }
+
+                // Next try floating point.
                 try {
                     const R val = static_cast<R>(std::stold(token));
-                    row.push_back(CSVElement({val}));
-                    parsedTypes.push_back(TokenType::REAL);
+                    row.push_back(CSVElement({ val }));
+                    parsedTypes.push_back(ElementType::REAL);
                     continue;
-                } catch(const std::invalid_argument &e) {}
-
-                // Next try integer.
-                try {
-                    const I val = static_cast<I>(std::stoll(token));
-                    row.push_back(CSVElement({val}));
-                    parsedTypes.push_back(TokenType::INTEGER);
-                    continue;
-                } catch (const std::invalid_argument &e) {}
+                }
+                catch (const std::invalid_argument &e) {}
 
                 // Then boolean.
                 if (token == "True" || token == "true" || token == "T") {
                     row.push_back(CSVElement({true}));
-                    parsedTypes.push_back(TokenType::BOOLEAN);
+                    parsedTypes.push_back(ElementType::BOOLEAN);
                     continue;
                 }
                 if (token == "False" || token == "false" || token == "F") {
                     row.push_back(CSVElement({false}));
-                    parsedTypes.push_back(TokenType::BOOLEAN); 
+                    parsedTypes.push_back(ElementType::BOOLEAN); 
                     continue;
                 }
 
-                // If we get here, it's not parsable, so place it in verbatim.
+                // If we get here, it's not parsable as numeric or bool, so place it in verbatim.
                 row.push_back(token);
-                parsedTypes.push_back(TokenType::STRING);
+                parsedTypes.push_back(ElementType::STRING);
             }
 
             // Verify the types and return.
@@ -120,12 +141,77 @@ namespace CPPUtils::IO {
             return row;
         }
 
+        std::string getRowAsString(const CSVRow &row) const {
+            // To zip elements and types.
+            using CPPUtils::Iterators::ZipperFactory;
+
+            std::ostringstream lineStream;
+            const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+            for (const auto &[v, t] : zipper) {
+                switch (*t) {
+                case ElementType::REAL: {
+                    R realVal = getRawFromElement<R>(*v);
+                    lineStream << realVal << ", ";
+                    break;
+                }
+                case ElementType::INTEGER: {
+                    I intVal = getRawFromElement<I>(*v);
+                    lineStream << intVal << ", ";
+                    break;
+                }
+                case ElementType::BOOLEAN: {
+                    bool boolVal = getRawFromElement<bool>(*v);
+                    lineStream << ((boolVal) ? "True" : "False") << ", ";
+                    break;
+                }
+                case ElementType::STRING: {
+                    std::string stringVal = getRawFromElement<std::string>(*v);
+                    lineStream << stringVal << ", ";
+                    break;
+                }
+                default:
+                    // Should never get here.
+                    throw std::runtime_error("CSV: Unknown type.");
+                }               
+            }
+            lineStream.flush();
+            const auto outString = lineStream.str();
+            return outString.substr(0, outString.size() - 2);
+        }
+
+        void verifyRow(const CSVRow &row) const {
+            // First verify lengths.
+            assert(row.size() == types.size());
+
+            // Next verify types.
+            const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+            for (const auto &&[v, t] : zipper) {
+                switch (elementType) {
+                case ElementType::REAL:
+                    getRawFromElement<R>(*v);
+                    break;
+                case ElementType::INTEGER:
+                    getRawFromElement<I>(*v);
+                    break;
+                case ElementType::BOOLEAN:
+                    getRawFromElement<bool>(*v);
+                    break;
+                case ElementType::STRING:
+                    getRawFromElement<std::string>(*v);
+                    break;
+                default:
+                    // Should never get here.
+                    throw std::runtime_error("CSV: Unknown type.");
+                }
+            }
+        }
+
     public:
         CSVFile() {
             //
         }
 
-        CSVFile(const std::vector<TokenType> &types) : types(types) {
+        CSVFile(const std::vector<ElementType> &types) : types(types) {
             //
         }
 
@@ -133,88 +219,121 @@ namespace CPPUtils::IO {
             //
         }
         
-        void readFile(const std::string &fileName) {
+        void readFromDisk(const std::string &fileName) {
             // Import delimiter tokenizing routine.
-            using CPPUtils::StringManipulation::splitOnDelimiter();
+            using CPPUtils::StringManipulation::splitOnDelimiter;
 
             // Make input stream and attempt to open given file.
             try {
-                std::unique_ptr<std::ifstream> inStr(new std::ifstream(fileName), 
-                                                     [](std::ifstream *s) { 
-                                                         if (s->is_open()) {
-                                                             s->close();
-                                                         }
-                                                         delete s; 
-                                                     });
+                StreamPtr<std::ifstream> inStr(new std::ifstream(fileName), 
+                                               [](std::ifstream *s) { 
+                                                   if (s->is_open()) {
+                                                       s->close();
+                                                   }
+                                                   delete s; 
+                                               });
+
+                // Read each line.
+                std::string line;
+                while (std::getline(*inStr, line)) {
+                    const auto tokens = splitOnDelimiter(line, ',');
+                    const auto row = parseTokens(tokens);
+                    data.push_back(row);
+                }
             }
             catch (const std::ifstream::failure &e) {
                 std::cerr << "CSV: Error opening input file: " << fileName << std::endl;
                 throw e;
             }
-
-            // Read each line.
-            std::string line;
-            while (std::getline(*inStr.get(), line)) {
-                // Split the line and verify correct size.
-                const auto tokens = splitOnDelimiter(line, ',');
-                const auto row = parseTokens(tokens);
-                data.push_back(row);
-            }
         }
 
-        void writeFile(const std::string &fileName) const {
+        void writeToDisk(const std::string &fileName) const {
+            // To zip elements and types.
+            using CPPUtils::Iterators::ZipperFactory;
+
             // If nothing to write, early out.
             if (data.size() == 0) {
                 return;
             }
 
             // Make output stream.
-            std::unique_ptr<std::ofstream> outStr(new std::ofstream(fileName),
-                                                  [](std::ofstream *s) { 
-                                                      if (s->is_open()) {
-                                                          s->close();
-                                                      }
-                                                      delete s;
-                                                  });
+            StreamPtr<std::ofstream> outStr(new std::ofstream(fileName),
+                                            [](std::ofstream *s) { 
+                                                if (s->is_open()) {
+                                                    s->flush();
+                                                    s->close();
+                                                }
+                                                delete s;
+                                            });
 
             // Write out each row.
             for (const auto &row : data) {
-                std::string line;
-                std::stringstream lineStream(outString);
-                for (const auto &elem : row) {
-                    //lineStream << elem.
-                }
+                *outStr << getRowAsString(row) << std::endl;
             }
         }
 
-        void appendRow(const std::string &row) {
-            //
+        void appendRow(const std::string &line) {
+            // Import delimiter tokenizing routine.
+            using CPPUtils::StringManipulation::splitOnDelimiter;
+
+            const auto tokens = splitOnDelimiter(line, ',');
+            const auto row = parseTokens(tokens);
+            data.push_back(row);
         }
 
         void appendRow(const CSVRow &row) {
-            //
+            verifyRow(row);
+            data.push_back(row);
         }
 
         void append(const CSVFile &csvFile) {
-            // Iterate over csvFile
+            for (const auto &row : csvFile.getData()) {
+                verifyRow(row);
+                data.push_back(row);
+            }
         }
 
         const std::vector<CSVRow> &getData() const {
-            //
+            return data;
         }
 
         std::vector< std::vector<R> > getDataNumeric() const {
-            //
+            // To zip elements and types.
+            using CPPUtils::Iterators::ZipperFactory;
+
+            std::vector< std::vector<R> > outNumeric;
+            for (const auto &row : data) {
+                std::vector<R> numericRow;
+                const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+                for (const auto &[v, t] : zipper) {
+                    if (*t == ElementType::REAL) {
+                        numericRow.push_back(getRawFromElement<R>(*v));
+                    }
+
+                    if (*t == ElementType::INTEGER) {
+                        numericRow.push_back(static_cast<R>(getRawFromElement<I>(*v)));
+                    }
+                }
+                outNumeric.push_back(numericRow);
+            }
+            return outNumeric;
         }
 
         std::vector<std::string> getDataString() const {
-            //
+            std::vector<std::string> outStrings;
+            for (const auto &row : data) {
+                outStrings.push_back(getRowAsString(row));
+            }
+            return outStrings;
         }
 
         size_t getNumRows() const {
             return data.size();
         }
+
+        const std::vector<ElementType> &getDataTypes() const {
+            return types;
+        }
     };
 }
-
 #endif

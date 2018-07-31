@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <sstream>
 
 namespace CPPUtils::StringManipulation {
@@ -44,6 +45,7 @@ namespace CPPUtils::StringManipulation {
         std::string token;
 
         while (std::getline(inStream, token, delim)) {
+            token.erase(std::remove_if(token.begin(), token.end(), isspace), token.end());
             tokens.push_back(token);
         }
 

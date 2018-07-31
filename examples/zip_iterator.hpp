@@ -25,13 +25,13 @@ namespace CPPUtils::Examples {
 		b["y"] = 2.0;
 		BoolList c = {true, false, true, true};
 
-        auto zip = ZipperFactory<IntList, FloatMap, BoolList>()(a, b, c);
+        auto zipper = ZipperFactory<IntList, FloatMap, BoolList>()(a, b, c);
 
 		// Iterate.
-        for (auto iter = zip.begin(); iter != zip.end(); iter++) {
-            std::cout << *std::get<0>(*iter) << ", ";
-            std::cout << "[" << std::get<1>(*iter)->first << ", " << std::get<1>(*iter)->second << "], ";
-            std::cout << *std::get<2>(*iter) << std::endl;
+        for (const auto [i, f, b] : zipper) {
+            std::cout << *i << ", ";
+            std::cout << "[" << f->first << ", " << f->second << "], ";
+            std::cout << *b << std::endl;
 		}
 	}
 }

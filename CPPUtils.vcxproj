@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="examples\counting_iterator.hpp" />
+    <ClCompile Include="examples\csv.hpp" />
     <ClCompile Include="examples\main.cpp" />
     <ClCompile Include="examples\split_on_delimiter.hpp" />
   </ItemGroup>
