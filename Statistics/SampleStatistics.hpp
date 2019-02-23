@@ -73,6 +73,8 @@ namespace CPPUtils::Statistics {
 		virtual void provideSample(T sample) {
 			if (n == 0) {
 				mean = sample;
+				n++;
+				return;
 			}
 
 			const auto mu = mean + (sample - mean) / static_cast<T>(n);
@@ -107,23 +109,41 @@ namespace CPPUtils::Statistics {
 				samples.pop_front();
 			}
 			samples.push_back(sample);
+			n = samples.size();
 
 			mean = std::accumulate(samples.begin(), samples.end(), 0);
-			mean /= static_cast<T>(samples.size());
+			mean /= static_cast<T>(n);
 
 			if constexpr (withVariance) {
-				if (n > 0) {
+				if (n > 1) {
 					variance = std::accumulate(samples.begin(), samples.end(), 0,
-											   [this](auto acc, auto sample) {
-						return acc + (sample - mean);
+											   [this](auto acc, auto x) {
+						return std::move(acc) + std::pow(x - mean, 2);
 					});
 					variance /= static_cast<T>(n - 1);
 				}
 			}
-
-			n = samples.size();
 		}
 	};
+
+	template<typename T, bool withVariance = true>
+	inline auto getSampleStatistics(const T& data) {
+		const auto n = static_cast<T::value_type>(data.size());
+		const auto mu = std::accumulate(data.begin(), data.end(), 0) / n;
+
+		if constexpr (!withVariance) {
+			return mu;
+		}
+		else {
+			auto sigma = std::accumulate(data.begin(), data.end(), 0,
+			      					     [mu](auto acc, auto sample) {
+				return std::move(acc) + (sample - mu);
+			});
+			sigma /= (n - 1);
+
+			return std::make_pair(mu, sigma);
+		}
+	}
 }
 
 #endif
