@@ -3,9 +3,10 @@
 
 #include <tuple>
 #include <functional>
+#include <cstddef>
 
 namespace CPPUtils::ContainerTools::Tuple {
-    template<typename T, typename F, size_t ...S>
+    template<typename T, typename F, std::size_t ...S>
     constexpr void tupleFor(T &tuple, const F &func, std::index_sequence<S...>) {
         (func(std::integral_constant<size_t, S>{}, std::get<S>(tuple)),...);
     }
