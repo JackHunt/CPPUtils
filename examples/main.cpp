@@ -3,6 +3,7 @@
 #include "split_on_delimiter.hpp"
 #include "tuple_tools.hpp"
 #include "csv.hpp"
+#include "sample_statistics.hpp"
 #include <iostream>
 
 using namespace CPPUtils::Examples;
@@ -21,9 +22,11 @@ int main(int argc, char *argv[]) {
 	//tuple_tools_example();
 
     // CSVFile example.
-    csv_example();
+    //csv_example();
+
+	// SampleStatistics example.
+	sample_statistics_example();
 
 	std::getchar();
-
 	return 0;
 }
