@@ -22,6 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{2FDCCA3C-87D6-4F28-AF66-58C8E994922B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -107,11 +108,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ContainerTools\TupleTools.hpp" />
+    <ClInclude Include="examples\sample_statistics.hpp" />
     <ClInclude Include="examples\tuple_tools.hpp" />
     <ClInclude Include="examples\zip_iterator.hpp" />
     <ClInclude Include="io\CSVFile.hpp" />
     <ClInclude Include="iterators\CountingIterator.hpp" />
     <ClInclude Include="iterators\ZipIterator.hpp" />
+    <ClInclude Include="Statistics\SampleStatistics.hpp" />
     <ClInclude Include="stringmanipulation\Tokenizing.hpp" />
   </ItemGroup>
   <ItemGroup>

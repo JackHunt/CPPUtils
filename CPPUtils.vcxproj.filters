@@ -36,6 +36,12 @@
     <ClInclude Include="examples\tuple_tools.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Statistics\SampleStatistics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\sample_statistics.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="examples\counting_iterator.hpp">
