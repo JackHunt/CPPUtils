@@ -61,9 +61,7 @@ namespace CPPUtils::Statistics {
             if constexpr (withVariance) {
                 return std::make_pair(mean, variance);
             }
-            else {
-                return mean;
-            }
+            return mean;
         }
 
         unsigned long getSampleCount() const {
@@ -134,15 +132,14 @@ namespace CPPUtils::Statistics {
         if constexpr (!withVariance) {
             return mu;
         }
-        else {
-            auto sigma = std::accumulate(data.begin(), data.end(), 0,
-                                           [mu](auto acc, auto sample) {
-                return std::move(acc) + (sample - mu);
-            });
-            sigma /= (n - 1);
+        
+        auto sigma = std::accumulate(data.begin(), data.end(), 0,
+                                     [mu](auto acc, auto sample) {
+            return std::move(acc) + (sample - mu);
+        });
+        sigma /= (n - 1);
 
-            return std::make_pair(mu, sigma);
-        }
+        return std::make_pair(mu, sigma);
     }
 }
 
