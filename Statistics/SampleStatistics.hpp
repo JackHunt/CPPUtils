@@ -38,112 +38,112 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <numeric>
 
 namespace CPPUtils::Statistics {
-	template<typename T, bool withVariance = true>
-	class RunningSampleStatistics {
-	protected:
-		T mean;
-		T variance;
-		unsigned long n;
+    template<typename T, bool withVariance = true>
+    class RunningSampleStatistics {
+    protected:
+        T mean;
+        T variance;
+        unsigned long n;
 
-	public:
-		RunningSampleStatistics() :
-			mean(0),
-			variance(0),
-			n(0) {
-			//
-		}
+    public:
+        RunningSampleStatistics() :
+            mean(0),
+            variance(0),
+            n(0) {
+            //
+        }
 
-		virtual ~RunningSampleStatistics() {
-			//
-		}
+        virtual ~RunningSampleStatistics() {
+            //
+        }
 
-		auto getEstimate() const {
-			if constexpr (withVariance) {
-				return std::make_pair(mean, variance);
-			}
-			else {
-				return mean;
-			}
-		}
+        auto getEstimate() const {
+            if constexpr (withVariance) {
+                return std::make_pair(mean, variance);
+            }
+            else {
+                return mean;
+            }
+        }
 
-		unsigned long getSampleCount() const {
-			return n;
-		}
+        unsigned long getSampleCount() const {
+            return n;
+        }
 
-		virtual void provideSample(T sample) {
-			if (n == 0) {
-				mean = sample;
-				n++;
-				return;
-			}
+        virtual void provideSample(T sample) {
+            if (n == 0) {
+                mean = sample;
+                n++;
+                return;
+            }
 
-			const auto mu = mean + (sample - mean) / static_cast<T>(n);
-			if constexpr (withVariance) {
-				variance = (sample - mean) * (sample - mu);
-			}
-			mean = mu;
+            const auto mu = mean + (sample - mean) / static_cast<T>(n);
+            if constexpr (withVariance) {
+                variance = (sample - mean) * (sample - mu);
+            }
+            mean = mu;
 
-			n++;
-		}
-	};
+            n++;
+        }
+    };
 
-	template<typename T, bool withVariance = true>
-	class WindowedSampleStatistics : public RunningSampleStatistics<T, withVariance> {
-	protected:
-		std::deque<T> samples;
-		const unsigned int windowSize;
+    template<typename T, bool withVariance = true>
+    class WindowedSampleStatistics : public RunningSampleStatistics<T, withVariance> {
+    protected:
+        std::deque<T> samples;
+        const unsigned int windowSize;
 
-	public:
-		WindowedSampleStatistics(unsigned int windowSize) :
-			RunningSampleStatistics<T, withVariance>(),
-			windowSize(windowSize) {
-			//
-		}
+    public:
+        WindowedSampleStatistics(unsigned int windowSize) :
+            RunningSampleStatistics<T, withVariance>(),
+            windowSize(windowSize) {
+            //
+        }
 
-		virtual ~WindowedSampleStatistics() {
-			//
-		}
+        virtual ~WindowedSampleStatistics() {
+            //
+        }
 
-		virtual void provideSample(T sample) override {
-			if (n >= windowSize) {
-				samples.pop_front();
-			}
-			samples.push_back(sample);
-			n = samples.size();
+        virtual void provideSample(T sample) override {
+            if (n >= windowSize) {
+                samples.pop_front();
+            }
+            samples.push_back(sample);
+            n = samples.size();
 
-			mean = std::accumulate(samples.begin(), samples.end(), 0);
-			mean /= static_cast<T>(n);
+            mean = std::accumulate(samples.begin(), samples.end(), 0);
+            mean /= static_cast<T>(n);
 
-			if constexpr (withVariance) {
-				if (n > 1) {
-					variance = std::accumulate(samples.begin(), samples.end(), 0,
-											   [this](auto acc, auto x) {
-						return std::move(acc) + std::pow(x - mean, 2);
-					});
-					variance /= static_cast<T>(n - 1);
-				}
-			}
-		}
-	};
+            if constexpr (withVariance) {
+                if (n > 1) {
+                    variance = std::accumulate(samples.begin(), samples.end(), 0,
+                                               [this](auto acc, auto x) {
+                        return std::move(acc) + std::pow(x - mean, 2);
+                    });
+                    variance /= static_cast<T>(n - 1);
+                }
+            }
+        }
+    };
 
-	template<typename T, bool withVariance = true>
-	inline auto getSampleStatistics(const T& data) {
-		const auto n = static_cast<T::value_type>(data.size());
-		const auto mu = std::accumulate(data.begin(), data.end(), 0) / n;
+    template<typename T, bool withVariance = true>
+    inline auto getSampleStatistics(const T& data) {
+        const auto n = static_cast<T::value_type>(data.size());
+        const auto mu = std::accumulate(data.begin(), data.end(), 0) / n;
 
-		if constexpr (!withVariance) {
-			return mu;
-		}
-		else {
-			auto sigma = std::accumulate(data.begin(), data.end(), 0,
-			      					     [mu](auto acc, auto sample) {
-				return std::move(acc) + (sample - mu);
-			});
-			sigma /= (n - 1);
+        if constexpr (!withVariance) {
+            return mu;
+        }
+        else {
+            auto sigma = std::accumulate(data.begin(), data.end(), 0,
+                                           [mu](auto acc, auto sample) {
+                return std::move(acc) + (sample - mu);
+            });
+            sigma /= (n - 1);
 
-			return std::make_pair(mu, sigma);
-		}
-	}
+            return std::make_pair(mu, sigma);
+        }
+    }
 }
 
 #endif
