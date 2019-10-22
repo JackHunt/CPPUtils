@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018,2019 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <cassert>
 
-#include "../StringManipulation/Tokenizing.hpp"
-#include "../Iterators/ZipIterator.hpp"
+#include <CPPUtils/StringManipulation/Tokenizing.hpp>
+#include <CPPUtils/Iterators/ZipIterator.hpp>
 
 namespace CPPUtils::IO {
     template<typename R, typename I>
@@ -146,7 +146,7 @@ namespace CPPUtils::IO {
             using CPPUtils::Iterators::ZipperFactory;
 
             std::ostringstream lineStream;
-            const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+            const auto zipper = ZipperFactory<CSVRow, std::vector<ElementType>>()(row, types);
             for (const auto &[v, t] : zipper) {
                 switch (*t) {
                 case ElementType::REAL: {
@@ -183,10 +183,13 @@ namespace CPPUtils::IO {
             // First verify lengths.
             assert(row.size() == types.size());
 
+            // To zip elements and types.
+            using CPPUtils::Iterators::ZipperFactory;
+
             // Next verify types.
-            const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+            const auto zipper = ZipperFactory<CSVRow, std::vector<ElementType>>()(row, types);
             for (const auto &&[v, t] : zipper) {
-                switch (elementType) {
+                switch (t) {
                 case ElementType::REAL:
                     getRawFromElement<R>(*v);
                     break;

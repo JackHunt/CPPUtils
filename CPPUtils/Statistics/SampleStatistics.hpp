@@ -36,6 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 #include <deque>
 #include <numeric>
+#include <cmath>
+#include <variant>
 
 namespace CPPUtils::Statistics {
     template<typename T, bool withVariance = true>
@@ -57,7 +59,7 @@ namespace CPPUtils::Statistics {
             //
         }
 
-        auto getEstimate() const {
+        std::variant<T, std::pair<T, T>> getEstimate() const {
             if constexpr (withVariance) {
                 return std::make_pair(mean, variance);
             }
@@ -103,19 +105,19 @@ namespace CPPUtils::Statistics {
         }
 
         virtual void provideSample(T sample) override {
-            if (n >= windowSize) {
+            if (samples.size() >= windowSize) {
                 samples.pop_front();
             }
             samples.push_back(sample);
-            n = samples.size();
+            auto n = samples.size();
 
-            mean = std::accumulate(samples.begin(), samples.end(), 0);
+            auto mean = std::accumulate(samples.begin(), samples.end(), 0);
             mean /= static_cast<T>(n);
 
             if constexpr (withVariance) {
                 if (n > 1) {
-                    variance = std::accumulate(samples.begin(), samples.end(), 0,
-                                               [this](auto acc, auto x) {
+                    auto variance = std::accumulate(samples.begin(), samples.end(), 0,
+                                                    [this, &mean](auto acc, auto x) {
                         return std::move(acc) + std::pow(x - mean, 2);
                     });
                     variance /= static_cast<T>(n - 1);
@@ -126,7 +128,7 @@ namespace CPPUtils::Statistics {
 
     template<typename T, bool withVariance = true>
     inline auto getSampleStatistics(const T& data) {
-        const auto n = static_cast<T::value_type>(data.size());
+        const auto n = static_cast<typename T::value_type>(data.size());
         const auto mu = std::accumulate(data.begin(), data.end(), 0) / n;
 
         if constexpr (!withVariance) {

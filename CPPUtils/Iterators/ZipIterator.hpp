@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018,2019 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ namespace CPPUtils::Iterators {
             return tmp;
         }
 
-        ZipIterator &operator+=(difference_type t) {
+        ZipIterator &operator+=(difference_type rhs) {
             tupleFor(val, [&rhs](size_t idx, auto &elem) { elem += std::get<idx>(rhs); });
             return *this;
         }
@@ -115,19 +115,19 @@ namespace CPPUtils::Iterators {
         difference_type operator-(const ZipIterator &rhs) const {
             auto rhsVal = rhs.base();
             value_type res;
-            tupleFor(res, [&rhsVal](size_t idx, auto &elem) { elem = std::get<idx>(val) - std::get<idx>(rhsVal); });
+            tupleFor(res, [this, &rhsVal](size_t idx, auto &elem) { elem = std::get<idx>(val) - std::get<idx>(rhsVal); });
             return res;
         }
 
         ZipIterator operator+(difference_type rhs) const {
             value_type res;
-            tupleFor(res, [&rhs](size_t idx, auto &elem) { elem = std::get<idx>(val) + std::get<idx>(rhs); });
+            tupleFor(res, [this, &rhs](size_t idx, auto &elem) { elem = std::get<idx>(val) + std::get<idx>(rhs); });
             return ZipIterator(res);
         }
 
         ZipIterator operator-(difference_type rhs) const {
             value_type res;
-            tupleFor(res, [&rhs](size_t idx, auto &elem) { elem = std::get<idx>(val) - std::get<idx>(rhs); });
+            tupleFor(res, [this, &rhs](size_t idx, auto &elem) { elem = std::get<idx>(val) - std::get<idx>(rhs); });
             return ZipIterator(res);
         }
 
