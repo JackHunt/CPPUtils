@@ -87,10 +87,6 @@ namespace CPPUtils::Timing {
         const decltype(ticTocs)& getTicTocs() const {
             return ticTocs;
         }
-
-        const std::vector<Timestamp> getElapsedTimes(bool average = false) const {
-            //
-        }
     };
 
     template<typename T>
