@@ -6,11 +6,26 @@
 project(CPPUtils)
 cmake_minimum_required(VERSION 3.15)
 
+# Set standard.
+set(CMAKE_CXX_STANDARD 17)
+
+# Algorithms.
+set(ALGORITHMS_HEADERS
+  CPPUtils/Algorithms/PathFinding.hpp
+)
+source_group(Algorithms FILES ${ALGORITHMS_HEADERS})
+
 # ContainterTools
 set(CONTAINER_TOOLS_HEADERS
-  CPPUtils/ContainterTools/TupleTools.h
+  CPPUtils/ContainerTools/TupleTools.hpp
 )
-source_group(ContainterTools FILES ${CONTAINER_TOOLS_HEADERS})
+source_group(ContainerTools FILES ${CONTAINER_TOOLS_HEADERS})
+
+# Data Structures.
+set(DATA_STRUCTURES_HEADERS
+  CPPUtils/DataStructures/Graph.hpp
+)
+source_group(DataStructures FILES ${DATA_STRUCTURES_HEADERS})
 
 # IO
 set(IO_HEADERS
@@ -45,6 +60,19 @@ source_group(Timing FILES ${TIMING_HEADERS})
 
 # Add this top level directory to the includes.
 include_directories(${PROJECT_SOURCE_DIR})
+
+# Create a custom target so that headers show in a VS solution.
+set(ALL_HEADERS
+  ${ALGORITHMS_HEADERS}
+  ${CONTAINER_TOOLS_HEADERS}
+  ${DATA_STRUCTURES_HEADERS}
+  ${IO_HEADERS}
+  ${ITERATORS_HEADERS}
+  ${STATISTICS_HEADERS}
+  ${STRING_MANIPULATION_HEADERS}
+  ${TIMING_HEADERS}
+)
+add_custom_target(${PROJECT_NAME}_ SOURCES ${ALL_HEADERS})
 
 # Add option to build examples.
 option(BUILD_EXAMPLES "Build Examples?" OFF)
