@@ -1,5 +1,5 @@
-#ifndef SEARCH_H
-#define SEARCH_H
+#ifndef CPP_UTILS_ALGORITHMS_PATH_FINDING
+#define CPP_UTILS_ALGORITHMS_PATH_FINDING
 
 #include <vector>
 #include <functional>
@@ -10,21 +10,23 @@
 
 namespace CPPUtils::Algorithms {
 
-    template<typename T>
-    using RankedVertex = std::pair<double, T>;
+    template<typename T, typename U = double>
+    using Graph = CPPUtils::DataStructures::Graphs::Graph<T, U>;
 
-    template<typename T>
+    template<typename T, typename U = double>
+    using RankedVertex = std::pair<U, T>;
+
+    template<typename T, typename U = double>
     struct VertexCostPriority final {
-        bool operator()(const RankedVertex<T>& a,
-            const RankedVertex<T>& b) const {
+        bool operator()(const RankedVertex<T, U>& a, const RankedVertex<T>& b) const {
             return a.first < b.first;
         }
     };
 
-    template<typename T>
-    using VertexPriorityQueue = std::priority_queue<RankedVertex<T>,
-                                                    std::vector<RankedVertex<T>>,
-                                                    VertexCostPriority<T>>;
+    template<typename T, typename U = double>
+    using VertexPriorityQueue = std::priority_queue<RankedVertex<T, U>,
+                                                    std::vector<RankedVertex<T, U>>,
+                                                    VertexCostPriority<T, U>>;
 
     template<typename T>
     inline std::vector<T> getPath(std::map<T, T> path, const T& src, const T& sink) {
@@ -60,8 +62,8 @@ namespace CPPUtils::Algorithms {
         return reversedPath;
     }
 
-    template<typename T>
-    inline std::vector<T> AStarSearch(const Graph<T>& G, const T& startingVertex,
+    template<typename T, typename U = double>
+    inline std::vector<T> AStarSearch(const Graph<T, U>& G, const T& startingVertex,
                                       std::function<bool(T)> goalTest,
                                       std::function<double(T, T)> heuristic) {
         // Sanity check the starting vertex.
@@ -70,15 +72,15 @@ namespace CPPUtils::Algorithms {
         }
 
         // Vertices to visit.
-        VertexPriorityQueue<T> Q;
+        VertexPriorityQueue<T, U> Q;
 
         // Vertices along the path from start to goal.
         std::map<T, T> path;
 
         // Cumulative costs - key set also determines visited vertices.
-        std::unordered_map<T, double> cumulativeCosts;
+        std::unordered_map<T, U> cumulativeCosts;
         for (const auto v : G.getVertices()) {
-            cumulativeCosts[v] = std::numeric_limits<double>::max();
+            cumulativeCosts[v] = std::numeric_limits<U>::max();
         }
 
         // Start by adding the starting vertex, with cost 0.
@@ -118,10 +120,10 @@ namespace CPPUtils::Algorithms {
         return {};
     }
 
-    template<typename T>
-    inline std::vector<T> dijkstra(const Graph<T>& G, const T& src, const T& sink) {
+    template<typename T, typename U = double>
+    inline std::vector<T> dijkstra(const Graph<T, U>& G, const T& src, const T& sink) {
         // Goal state test; if a given vertex is the sink vertex.
-        auto goal = [sink](const T& a) -> bool {
+        auto g = [sink](const T& a) -> bool {
             return a == sink;
         };
 
@@ -131,7 +133,7 @@ namespace CPPUtils::Algorithms {
         };
 
         // Run A* with the above goal test and nought heuristic.
-        return AStarSearch<T>(G, src, goal, h);
+        return AStarSearch<T, U>(G, src, g, h);
     }
 }
 
