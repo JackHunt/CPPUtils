@@ -80,3 +80,9 @@ option(BUILD_EXAMPLES "Build Examples?" OFF)
 if(BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif(BUILD_EXAMPLES)
+
+# Add options to build examples.
+option(BUILD_TESTS "Build Tests?" OFF)
+if(BUILD_TESTS)
+  add_subdirectory(Tests)
+endif(BUILD_TESTS)
