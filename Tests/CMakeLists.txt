@@ -30,7 +30,7 @@ source_group(Tests/ContainerTools FILES ${CONTAINER_TOOLS_TESTS})
 
 # Data Structures.
 set(DATA_STRUCTURES_TESTS
-  #
+  DataStructures/Graph.cpp
 )
 source_group(Tests/DataStructures FILES ${DATA_STRUCTURES_TESTS})
 
