@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2020 Jack Miles Hunt
+Copyright (c) 2021 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,10 +67,10 @@ namespace CPPUtils::DataStructures::Graphs {
     using AdjacencyList = std::vector<OutwardEdge<T, U>>;
 
     template<typename T, typename U = double>
-    class Graph final {
-    private:
+    class Graph {
+    protected:
         // Controls how edges are added - bidirectional or not.
-        const bool directed;
+        bool directed;
 
         // An adjacency list (value) for each vertex (key).
         std::unordered_map<T, AdjacencyList<T, U>> edges;
@@ -85,8 +85,8 @@ namespace CPPUtils::DataStructures::Graphs {
         }
 
     public:
-        Graph(bool directed = false) :
-            directed(directed) {
+        Graph() :
+            directed(false) {
             //
         }
 
@@ -170,6 +170,13 @@ namespace CPPUtils::DataStructures::Graphs {
         }
     };
 
+    template<typename T, typename U = double>
+    class DirectedGraph : public Graph<T, U> {
+    public:
+        DirectedGraph() {
+            directed = false;
+        }
+    };
 }
 
 #endif
