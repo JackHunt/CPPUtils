@@ -33,11 +33,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CPP_UTILS_DATA_STRUCTURES_GRAPH
 #define CPP_UTILS_DATA_STRUCTURES_GRAPH
 
-#include <unordered_map>
-#include <vector>
-#include <utility>
 #include <algorithm>
 #include <cassert>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace CPPUtils::DataStructures::Graphs {
 
