@@ -33,11 +33,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CPP_UTILS_ALGORITHMS_PATH_FINDING
 #define CPP_UTILS_ALGORITHMS_PATH_FINDING
 
-#include <vector>
 #include <functional>
-#include <queue>
 #include <map>
+#include <queue>
 #include <unordered_set>
+#include <vector>
+
 #include <CPPUtils/DataStructures/Graph.hpp>
 
 namespace CPPUtils::Algorithms {
