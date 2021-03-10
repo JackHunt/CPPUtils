@@ -12,7 +12,9 @@ enable_testing()
 # Find Boost.Test
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-include_directories(${BOOST_INCLUDE_DIRS})
+
+# Add includes.
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Algorithms.
 set(ALGORITHMS_TESTS
