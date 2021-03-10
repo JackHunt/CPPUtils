@@ -51,7 +51,7 @@ namespace CPPUtils::DataStructures::Graphs {
         OutwardEdge(const T& vertex, U weight) :
             vertex(vertex),
             weight(weight) {
-            assert(weight >= 0);
+            //
         }
 
         const T& getVertex() const {
@@ -76,12 +76,15 @@ namespace CPPUtils::DataStructures::Graphs {
         std::unordered_map<T, AdjacencyList<T, U>> edges;
 
         void removeAdjacency(const T& a, AdjacencyList<T, U>& s) {
-            auto shouldRemove = [&a](const OutwardEdge<T, U>& c) {
-                return a == c.getVertex();
-            };
+            if (s.empty()) {
+                return;
+            }
 
             // Remove b from a's adjacency set.
-            s.erase(std::remove_if(s.begin(), s.end(), shouldRemove));
+            s.erase(std::remove_if(s.begin(), s.end(),
+                [&a](const OutwardEdge<T, U>& c) {
+                    return a == c.getVertex();
+                }));
         }
 
     public:
@@ -136,12 +139,17 @@ namespace CPPUtils::DataStructures::Graphs {
         }
 
         void removeEdge(const T& a, const T& b) {
+            // Early out if either doesn't exist.
+            if (!vertexExists(a) || !vertexExists(b)) {
+                return;
+            }
+
             // Remove the edge from a to b.
-            removeAdjacency(a, edges.at(b));
+            removeAdjacency(b, edges.at(a));
 
             // If undirected, also remove the edge from b to a.
             if (!directed) {
-                removeAdjacency(b, edges.at(a));
+                removeAdjacency(a, edges.at(b));
             }
         }
 
@@ -174,7 +182,7 @@ namespace CPPUtils::DataStructures::Graphs {
     class DirectedGraph : public Graph<T, U> {
     public:
         DirectedGraph() {
-            directed = false;
+            directed = true;
         }
     };
 }
