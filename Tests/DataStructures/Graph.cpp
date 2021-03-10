@@ -110,4 +110,164 @@ BOOST_AUTO_TEST_CASE(DirectedGraphAddVerticesTest) {
     GraphAddVerticesTestImpl<Graphs::DirectedGraph<double>>();
 }
 
+/*
+ * Test removing vertices.
+ */
+template<typename T>
+void GraphRemoveVerticesTestImpl() {
+    T G;
+
+    constexpr int V[3] = { 0, 1, 2 };
+    for (const auto v : V) {
+        G.addVertex(v);
+    }
+
+    G.removeVertex(0);
+    G.removeVertex(2);
+
+    const auto G_V = G.getVertices();
+    BOOST_CHECK(G_V.size() == 1);
+    BOOST_CHECK(G_V.at(0) == 1);
+}
+
+BOOST_AUTO_TEST_CASE(GraphRemoveVerticesTest) {
+    GraphRemoveVerticesTestImpl<Graphs::Graph<int>>();
+    GraphRemoveVerticesTestImpl<Graphs::Graph<float>>();
+    GraphRemoveVerticesTestImpl<Graphs::Graph<double>>();
+}
+
+BOOST_AUTO_TEST_CASE(DirectedGraphRemoveVerticesTest) {
+    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<int>>();
+    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<float>>();
+    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<double>>();
+}
+
+/*
+ * Test adding edges.
+ */
+BOOST_AUTO_TEST_CASE(GraphAddEdgesTest) {
+    Graphs::Graph<int> G;
+
+    // Setup the graph.
+    G.addEdge(0, 1, 0.5);
+
+    G.addEdge(2, 0, 0.1);
+    G.addEdge(2, 1, -0.1);
+
+    // Check each vertices connections.
+    const auto& adj_0 = G.getAdjacencyList(0);
+    BOOST_CHECK(adj_0.size() == 2);
+    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+    BOOST_CHECK(adj_0.at(1).getVertex() == 2);
+    BOOST_CHECK(adj_0.at(1).getWeight() == 0.1);
+
+    const auto& adj_1 = G.getAdjacencyList(1);
+    BOOST_CHECK(adj_1.size() == 2);
+    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_1.at(0).getWeight() == 0.5);
+    BOOST_CHECK(adj_1.at(1).getVertex() == 2);
+    BOOST_CHECK(adj_1.at(1).getWeight() == -0.1);
+
+    const auto& adj_2 = G.getAdjacencyList(2);
+    BOOST_CHECK(adj_2.size() == 2);
+    BOOST_CHECK(adj_2.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_2.at(0).getWeight() == 0.1);
+    BOOST_CHECK(adj_2.at(1).getVertex() == 1);
+    BOOST_CHECK(adj_2.at(1).getWeight() == -0.1);
+}
+
+BOOST_AUTO_TEST_CASE(DirectedGraphAddEdgesTest) {
+    Graphs::DirectedGraph<int> G;
+
+    // Setup the graph.
+    G.addEdge(0, 1, 0.5);
+    G.addEdge(1, 0, -0.5);
+
+    G.addEdge(2, 0, 0.1);
+    G.addEdge(2, 1, -0.1);
+
+    // Check each vertices connections.
+    const auto& adj_0 = G.getAdjacencyList(0);
+    BOOST_CHECK(adj_0.size() == 1);
+    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+
+    const auto& adj_1 = G.getAdjacencyList(1);
+    BOOST_CHECK(adj_1.size() == 1);
+    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_1.at(0).getWeight() == -0.5);
+
+    const auto& adj_2 = G.getAdjacencyList(2);
+    BOOST_CHECK(adj_2.size() == 2);
+    BOOST_CHECK(adj_2.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_2.at(0).getWeight() == 0.1);
+    BOOST_CHECK(adj_2.at(1).getVertex() == 1);
+    BOOST_CHECK(adj_2.at(1).getWeight() == -0.1);
+}
+
+/*
+ * Test removing edges.
+ */
+BOOST_AUTO_TEST_CASE(GraphRemoveEdgesTest) {
+    Graphs::Graph<int> G;
+
+    // Setup the graph.
+    G.addEdge(0, 1, 0.5);
+
+    G.addEdge(2, 0, 0.1);
+    G.addEdge(2, 1, -0.1);
+
+    // Remove an edge.
+    G.removeEdge(2, 0);
+
+    // Check each vertices connections.
+    const auto& adj_0 = G.getAdjacencyList(0);
+    BOOST_CHECK(adj_0.size() == 1);
+    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+
+    const auto& adj_1 = G.getAdjacencyList(1);
+    BOOST_CHECK(adj_1.size() == 2);
+    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_1.at(0).getWeight() == 0.5);
+    BOOST_CHECK(adj_1.at(1).getVertex() == 2);
+    BOOST_CHECK(adj_1.at(1).getWeight() == -0.1);
+
+    const auto& adj_2 = G.getAdjacencyList(2);
+    BOOST_CHECK(adj_2.size() == 1);
+    BOOST_CHECK(adj_2.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_2.at(0).getWeight() == -0.1);
+}
+
+BOOST_AUTO_TEST_CASE(DirectedGraphRemoveEdgesTest) {
+    Graphs::DirectedGraph<int> G;
+
+    // Setup the graph.
+    G.addEdge(0, 1, 0.5);
+    G.addEdge(1, 0, -0.5);
+
+    G.addEdge(2, 0, 0.1);
+    G.addEdge(2, 1, -0.1);
+
+    // Remove an edge.
+    G.removeEdge(2, 0);
+
+    // Check each vertices connections.
+    const auto& adj_0 = G.getAdjacencyList(0);
+    BOOST_CHECK(adj_0.size() == 1);
+    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+
+    const auto& adj_1 = G.getAdjacencyList(1);
+    BOOST_CHECK(adj_1.size() == 1);
+    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
+    BOOST_CHECK(adj_1.at(0).getWeight() == -0.5);
+
+    const auto& adj_2 = G.getAdjacencyList(2);
+    BOOST_CHECK(adj_2.size() == 1);
+    BOOST_CHECK(adj_2.at(0).getVertex() == 1);
+    BOOST_CHECK(adj_2.at(0).getWeight() == -0.1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
