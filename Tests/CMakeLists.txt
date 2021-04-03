@@ -25,7 +25,7 @@ source_group(Tests/Algorithms FILES ${ALGORITHMS_TESTS})
 
 # ContainterTools
 set(CONTAINER_TOOLS_TESTS
-  #
+  ContainerTools/TupleTools.cpp
 )
 source_group(Tests/ContainerTools FILES ${CONTAINER_TOOLS_TESTS})
 
