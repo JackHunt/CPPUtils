@@ -69,7 +69,7 @@ namespace CPPUtils::Algorithms {
         // While there are traversals to check.
         while (!path.empty()) {
             // Get the last appended (to the output path) vertex.
-            const T& v = reversedPath.back();
+            const auto& v = reversedPath.back();
 
             // If the last vertex added does not exist as a key, then we can 
             // traverse no further.
@@ -78,7 +78,7 @@ namespace CPPUtils::Algorithms {
             }
 
             // Store the node u traversed to from v.
-            const T& u = path.at(v);
+            const auto& u = path.at(v);
             reversedPath.push_back(u);
 
             // If u is the source node, we have reconstructed the path.
