@@ -161,12 +161,12 @@ namespace CPPUtils::Algorithms {
         };
 
         // A constant heuristic of 0.
-        auto h = [](const T&, const T&) -> double {
+        constexpr auto h = [](const T&, const T&) -> U {
             return 0;
         };
 
         // Run A* with the above goal test and nought heuristic.
-        return AStarSearch<T, U>(G, src, g, h);
+        return AStarSearch<T, U, U>(G, src, g, h);
     }
 }
 
