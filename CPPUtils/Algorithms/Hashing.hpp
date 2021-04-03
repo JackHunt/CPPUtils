@@ -33,11 +33,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CPP_UTILS_ALGORITHMS_HASHING
 #define CPP_UTILS_ALGORITHMS_HASHING
 
+#include <cmath>
+#include <utility>
+
 namespace CPPUtils::Algorithms {
 
     template<typename T = int>
     inline T cantorHash(T x, T y) {
         return (x + y) * (x + y + 1) / 2 + y;
+    }
+
+    template<typename T = int>
+    inline std::pair<T, T> inverseCantorHash(T n) {
+        const auto w = std::floor((std::sqrt(8 * n + 1) - 1) / 2);
+        const auto t = (w * w + w) / 2;
+        const auto y = n - t;
+        const auto x = w - y;
+        return { x, y };
     }
 
 }
