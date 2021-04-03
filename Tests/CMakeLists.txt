@@ -19,6 +19,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Algorithms.
 set(ALGORITHMS_TESTS
   Algorithms/PathFinding.cpp
+  Algorithms/Hashing.cpp
 )
 source_group(Tests/Algorithms FILES ${ALGORITHMS_TESTS})
 
