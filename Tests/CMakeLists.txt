@@ -37,7 +37,7 @@ source_group(Tests/DataStructures FILES ${DATA_STRUCTURES_TESTS})
 
 # IO
 set(IO_TESTS
-  #
+  IO/CSVFile.cpp
 )
 source_group(Tests/IO FILES ${IO_TESTS})
 
