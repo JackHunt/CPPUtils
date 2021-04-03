@@ -51,7 +51,7 @@ namespace CPPUtils::Algorithms {
 
     template<typename T, typename U = double>
     struct VertexCostPriority final {
-        bool operator()(const RankedVertex<T, U>& a, const RankedVertex<T>& b) const {
+        bool operator()(const RankedVertex<T, U>& a, const RankedVertex<T, U>& b) const {
             return a.first < b.first;
         }
     };
