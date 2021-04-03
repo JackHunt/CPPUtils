@@ -138,9 +138,10 @@ namespace CPPUtils::Algorithms {
                 const auto cost = cumulativeCosts.at(v) + n.getWeight();
 
                 // If this neighbour cost is lower.
-                if (cost < cumulativeCosts.at(u)) {
+                const auto uCumulative = cumulativeCosts.at(u);
+                if (cost < uCumulative) {
                     // Push the vertex with the sum of these two costs.
-                    Q.emplace(cost, u);
+                    Q.emplace(cost + uCumulative, u);
 
                     // Update cost.
                     cumulativeCosts[u] = cost + heuristic(v, u);
