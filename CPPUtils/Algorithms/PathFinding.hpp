@@ -95,25 +95,25 @@ namespace CPPUtils::Algorithms {
         return reversedPath;
     }
 
-    template<typename T, typename U = double>
+    template<typename T, typename U, typename V = double>
     inline std::vector<T> AStarSearch(const Graph<T, U>& G, const T& startingVertex,
                                       std::function<bool(T)> goalTest,
-                                      std::function<double(T, T)> heuristic) {
+                                      std::function<typename V(T, T)> heuristic) {
         // Sanity check the starting vertex.
         if (!G.vertexExists(startingVertex)) {
             return {};
         }
 
         // Vertices to visit.
-        VertexPriorityQueue<T, U> Q;
+        VertexPriorityQueue<T, V> Q;
 
         // Vertices along the path from start to goal.
         std::map<T, T> path;
 
         // Cumulative costs - key set also determines visited vertices.
-        std::unordered_map<T, U> cumulativeCosts;
-        for (const auto v : G.getVertices()) {
-            cumulativeCosts[v] = std::numeric_limits<U>::max();
+        std::unordered_map<T, V> cumulativeCosts;
+        for (const auto& v : G.getVertices()) {
+            cumulativeCosts[v] = (std::numeric_limits<V>::max)();
         }
 
         // Start by adding the starting vertex, with cost 0.
