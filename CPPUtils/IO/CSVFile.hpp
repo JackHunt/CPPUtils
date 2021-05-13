@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <cassert>
 
 #include <CPPUtils/StringManipulation/Tokenizing.hpp>
 #include <CPPUtils/Iterators/ZipIterator.hpp>
@@ -86,8 +85,11 @@ namespace CPPUtils::IO {
           }
 
         CSVRow parseTokens(const std::vector<std::string> &tokens) {
-            if (types.size() != 0) {
-                assert(tokens.size() == types.size());
+            if (types.size() != 0 && types.size() != tokens.size()) {
+                std::stringstream ss;
+                ss << "CSV: Error parsing tokens. Found " << types.size()
+                   << " per-column types, but " << tokens.size() << " tokens.";
+                    throw std::runtime_error(ss.str());
             }
 
             // For each token, find it's type and add.
@@ -136,7 +138,12 @@ namespace CPPUtils::IO {
                 types = parsedTypes;
             } 
             else {
-                assert(std::equal(types.begin(), types.end(), parsedTypes.begin()));
+                if (!std::equal(types.begin(), types.end(), parsedTypes.begin())) {
+                    std::stringstream ss;
+                    ss << "CSV: Error verifying types. Parsed types and known types "
+                       << "do not match.";
+                    throw std::runtime_error(ss.str());
+                }
             }
             return row;
         }
@@ -181,7 +188,13 @@ namespace CPPUtils::IO {
 
         void verifyRow(const CSVRow &row) const {
             // First verify lengths.
-            assert(row.size() == types.size());
+            if (row.size() != types.size()) {
+                std::stringstream ss;
+                ss << "CSV: Error verifying row. Found " << types.size()
+                   << " per-column types, but " << row.size() << " tokens "
+                   << "in the provided row.";
+                throw std::runtime_error(ss.str());
+            }
 
             // To zip elements and types.
             using CPPUtils::Iterators::ZipperFactory;
