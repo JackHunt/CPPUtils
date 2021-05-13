@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define BOOST_TEST_MODULE CSVFileTests
 
 #include <filesystem>
+#include <vector>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -40,9 +41,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::IO;
 
+template<typename T>
+static void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
+    BOOST_CHECK_EQUAL(a.size(), b.size());
+
+    for (size_t i = 0; i < a.size(); i++) {
+        BOOST_CHECK(a.at(i) == b.at(i));
+    }
+}
+
 BOOST_AUTO_TEST_SUITE(CSVFileTestSuite)
 
-BOOST_AUTO_TEST_CASE(BasicCSVWriteTest) {
+BOOST_AUTO_TEST_CASE(BasicCSVWriteReadTest) {
     // Test data.
     constexpr auto a = "3.14, True, 2, 6.28, abc";
     constexpr auto b = "6.28, False, -2, 3.14, cba";
@@ -64,10 +74,7 @@ BOOST_AUTO_TEST_CASE(BasicCSVWriteTest) {
     csv2.readFromDisk(fname.string());
 
     // Verify that the types match.
-    const auto types = csv.getDataTypes();
-    const auto types2 = csv2.getDataTypes();
-    BOOST_CHECK_EQUAL_COLLECTIONS(types.cbegin(), types.cend(),
-                                  types2.cbegin(), types2.cend());
+    verifyEqual(csv.getDataTypes(), csv2.getDataTypes());
 
     // Verify the rows.
     const auto rows = csv.getData();
@@ -77,15 +84,39 @@ BOOST_AUTO_TEST_CASE(BasicCSVWriteTest) {
     BOOST_CHECK_EQUAL(csv.getNumRows(), csv2.getNumRows());
 
     for (size_t i = 0; i < rows.size(); i++) {
-        const auto rowA = rows.at(i);
-        const auto rowB = rows2.at(i);
-
-        BOOST_CHECK_EQUAL_COLLECTIONS(rowA.cbegin(), rowA.cend(),
-                                      rowB.cbegin(), rowB.cend());
+        verifyEqual(rows.at(i), rows2.at(i));
     }
 
     // Clear up.
     BOOST_CHECK(std::filesystem::remove(fname));
+}
+
+template<typename T, typename U>
+static void typeParseTestImpl() {
+    using CSV = CSVFile<T, U>;
+    using V = CSV::ElementType;
+
+    constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
+    const std::vector<V> types = {
+        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING,
+        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING
+    };
+
+    CSV csv;
+    csv.appendRow(vals);
+
+    const auto types2 = csv.getDataTypes();
+    verifyEqual(types, types2);
+}
+
+BOOST_AUTO_TEST_CASE(CSVTypeParseTest) {
+    typeParseTestImpl<float, short>();
+    typeParseTestImpl<float, int>();
+    typeParseTestImpl<float, long>();
+    
+    typeParseTestImpl<double, short>();
+    typeParseTestImpl<double, int>();
+    typeParseTestImpl<double, long>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
