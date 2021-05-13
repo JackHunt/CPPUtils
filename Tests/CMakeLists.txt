@@ -50,7 +50,7 @@ source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 
 # Statistics
 set(STATISTICS_TESTS
-  #
+  Statistics/SampleStatistics.cpp
 )
 source_group(Tests/Statistics FILES ${STATISTICS_TESTS})
 
