@@ -44,6 +44,7 @@ source_group(Tests/IO FILES ${IO_TESTS})
 # Iterators
 set(ITERATORS_TESTS
   Iterators/CountingIterator.cpp
+  Iterators/ZipIterator.cpp
 )
 source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 
