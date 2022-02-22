@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(BasicCSVWriteReadTest) {
 template<typename T, typename U>
 static void typeParseTestImpl() {
     using CSV = CSVFile<T, U>;
-    using V = CSV::ElementType;
+    using V = typename CSV::ElementType;
 
     constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
     const std::vector<V> types = {

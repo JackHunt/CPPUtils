@@ -1,11 +1,3 @@
-# Set CXX standard.
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-else(MSVC)
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif(MSVC)
-
 # Enable testing.
 enable_testing()
 
@@ -84,6 +76,11 @@ foreach(test_fname ${ALL_TESTS})
 
   # Add the target.
   add_executable(${test_name} ${test_fname})
+  set_target_properties(${test_name} PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+  )
   
   # Register a test.
   add_test(NAME ${test_name} COMMAND ${test_name})

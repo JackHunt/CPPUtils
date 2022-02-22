@@ -182,7 +182,7 @@ namespace CPPUtils::DataStructures::Graphs {
     class DirectedGraph : public Graph<T, U> {
     public:
         DirectedGraph() {
-            directed = true;
+           this->directed = true;
         }
     };
 }

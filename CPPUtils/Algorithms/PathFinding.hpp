@@ -98,7 +98,7 @@ namespace CPPUtils::Algorithms {
     template<typename T, typename U, typename V = double>
     inline std::vector<T> AStarSearch(const Graph<T, U>& G, const T& startingVertex,
                                       std::function<bool(T)> goalTest,
-                                      std::function<typename V(T, T)> heuristic) {
+                                      std::function<V(T, T)> heuristic) {
         // Sanity check the starting vertex.
         if (!G.vertexExists(startingVertex)) {
             return {};
