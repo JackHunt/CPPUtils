@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Algorithms.
 set(ALGORITHMS_HEADERS
   CPPUtils/Algorithms/PathFinding.hpp
-  CPPUtils/Algorithms/Hashing.Hpp
+  CPPUtils/Algorithms/Hashing.hpp
 )
 source_group(Algorithms FILES ${ALGORITHMS_HEADERS})
 
