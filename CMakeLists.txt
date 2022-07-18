@@ -11,8 +11,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Algorithms.
 set(ALGORITHMS_HEADERS
-  CPPUtils/Algorithms/PathFinding.hpp
+  CPPUtils/Algorithms/GradientOptimizers.hpp
   CPPUtils/Algorithms/Hashing.hpp
+  CPPUtils/Algorithms/PathFinding.hpp
 )
 source_group(Algorithms FILES ${ALGORITHMS_HEADERS})
 
@@ -25,6 +26,7 @@ source_group(ContainerTools FILES ${CONTAINER_TOOLS_HEADERS})
 # Data Structures.
 set(DATA_STRUCTURES_HEADERS
   CPPUtils/DataStructures/Graph.hpp
+  CPPUtils/DataStructures/Buffers.hpp
 )
 source_group(DataStructures FILES ${DATA_STRUCTURES_HEADERS})
 
@@ -40,6 +42,14 @@ set(ITERATORS_HEADERS
   CPPUtils/Iterators/ZipIterator.hpp
 )
 source_group(Iterators FILES ${ITERATORS_HEADERS})
+
+# Linear Algebra.
+set(LINEAR_ALGEBRA_HEADERS
+  CPPUtils/LinearAlgebra/BLAS.hpp
+  CPPUtils/LinearAlgebra/Matrix.hpp
+  CPPUtils/LinearAlgebra/Vector.hpp
+)
+source_group(LinearAlgebra FILES ${LINEAR_ALGEBRA_HEADERS})
 
 # Statistics
 set(STATISTICS_HEADERS
@@ -69,6 +79,7 @@ set(ALL_HEADERS
   ${DATA_STRUCTURES_HEADERS}
   ${IO_HEADERS}
   ${ITERATORS_HEADERS}
+  ${LINEAR_ALGEBRA_HEADERS}
   ${STATISTICS_HEADERS}
   ${STRING_MANIPULATION_HEADERS}
   ${TIMING_HEADERS}
