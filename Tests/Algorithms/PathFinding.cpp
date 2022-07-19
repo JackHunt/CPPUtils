@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,30 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE PathFindingTests
 
 #include <map>
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
+#include <gtest/gtest-matchers.h>
 
 #include <CPPUtils/Algorithms/PathFinding.hpp>
 
 using namespace CPPUtils::Algorithms;
 using namespace CPPUtils::DataStructures::Graphs;
 
-BOOST_AUTO_TEST_SUITE(PathFindingTestSuite)
+using namespace testing;
 
-BOOST_AUTO_TEST_CASE(VertexCostPriorityTest) {
+
+TEST(PathFindingTestSuite, VertexCostPriorityTest) {
     RankedVertex<int> a(0.1, 1);
     RankedVertex<int> b(0.2, 1);
 
-    BOOST_CHECK(VertexCostPriority<int>()(a, b));
-    BOOST_CHECK(!VertexCostPriority<int>()(b, a));
+    EXPECT_TRUE(VertexCostPriority<int>()(a, b));
+    EXPECT_FALSE(VertexCostPriority<int>()(b, a));
 }
 
-BOOST_AUTO_TEST_CASE(GetPathTest) {
+TEST(PathFindingTestSuite, GetPathTest) {
     const std::map<int, int> traversals = {
         {4, 3},
         {3, 2},
@@ -61,12 +62,11 @@ BOOST_AUTO_TEST_CASE(GetPathTest) {
 
     const auto path = getPath(traversals, 1, 4);
     const std::vector<int> true_path = { 1, 2, 3, 4 };
-    BOOST_CHECK_EQUAL(path.size(), true_path.size());
-    BOOST_CHECK_EQUAL_COLLECTIONS(path.cbegin(), path.cend(),
-                                  true_path.cbegin(), true_path.cend());
+    EXPECT_EQ(path.size(), true_path.size());
+    EXPECT_THAT(path, ElementsAre(true_path));
 }
 
-BOOST_AUTO_TEST_CASE(GetPathTestEmpty) {
+TEST(PathFindingTestSuite, GetPathTestEmpty) {
     const std::map<int, int> traversals = {
         {4, 3},
         {3, 3},
@@ -74,10 +74,10 @@ BOOST_AUTO_TEST_CASE(GetPathTestEmpty) {
     };
 
     const auto path = getPath(traversals, 1, 4);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(GetPathInvalidSourceTest) {
+TEST(PathFindingTestSuite, GetPathInvalidSourceTest) {
     const std::map<int, int> traversals = {
         {4, 3},
         {3, 2},
@@ -85,10 +85,10 @@ BOOST_AUTO_TEST_CASE(GetPathInvalidSourceTest) {
     };
 
     const auto path = getPath(traversals, 5, 4);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(GetPathInvalidSinkTest) {
+TEST(PathFindingTestSuite, GetPathInvalidSinkTest) {
     const std::map<int, int> traversals = {
         {4, 3},
         {3, 2},
@@ -96,10 +96,10 @@ BOOST_AUTO_TEST_CASE(GetPathInvalidSinkTest) {
     };
 
     const auto path = getPath(traversals, 1, 5);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(AStarSearchTest) {
+TEST(PathFindingTestSuite, AStarSearchTest) {
     DirectedGraph<int> G;
 
     constexpr double w = 0.1;
@@ -120,13 +120,11 @@ BOOST_AUTO_TEST_CASE(AStarSearchTest) {
 
     const auto path = AStarSearch<int, double, double>(G, 1, goal, heuristic);
     const std::vector<int> true_path = { 1, 2, 4, 5 };
-    BOOST_CHECK_EQUAL(path.size(), true_path.size());
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(path.cbegin(), path.cend(),
-                                  true_path.cbegin(), true_path.cend());
+    EXPECT_EQ(path.size(), true_path.size());
+    EXPECT_THAT(path, ContainerEq(true_path));
 }
 
-BOOST_AUTO_TEST_CASE(AStarSearchNeverReachGoalTest) {
+TEST(PathFindingTestSuite, AStarSearchNeverReachGoalTest) {
     DirectedGraph<int> G;
 
     constexpr double w = 0.1;
@@ -146,10 +144,10 @@ BOOST_AUTO_TEST_CASE(AStarSearchNeverReachGoalTest) {
     };
 
     const auto path = AStarSearch<int, double, double>(G, 1, goal, heuristic);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(AStarSearchInvalidStartTest) {
+TEST(PathFindingTestSuite, AStarSearchInvalidStartTest) {
     DirectedGraph<int> G;
 
     constexpr double w = 0.1;
@@ -169,10 +167,10 @@ BOOST_AUTO_TEST_CASE(AStarSearchInvalidStartTest) {
     };
 
     const auto path = AStarSearch<int, double, double>(G, 6, goal, heuristic);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(DijkstraTest) {
+TEST(PathFindingTestSuite, DijkstraTest) {
     DirectedGraph<int> G;
 
     G.addEdge(1, 2, 0.1);
@@ -185,13 +183,12 @@ BOOST_AUTO_TEST_CASE(DijkstraTest) {
     const auto path = dijkstra<int, double>(G, 1, 5);
 
     const std::vector<int> true_path = { 1, 2, 3, 4, 5 };
-    BOOST_CHECK_EQUAL(path.size(), true_path.size());
+    EXPECT_EQ(path.size(), true_path.size());
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(path.cbegin(), path.cend(),
-                                  true_path.cbegin(), true_path.cend());
+    EXPECT_THAT(path, ElementsAre(true_path));
 }
 
-BOOST_AUTO_TEST_CASE(DijkstraInvalidStartTest) {
+TEST(PathFindingTestSuite, DijkstraInvalidStartTest) {
     DirectedGraph<int> G;
 
     constexpr double w = 0.1;
@@ -201,10 +198,10 @@ BOOST_AUTO_TEST_CASE(DijkstraInvalidStartTest) {
     G.addEdge(4, 5, w);
 
     const auto path = dijkstra<int, double>(G, 6, 5);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
 
-BOOST_AUTO_TEST_CASE(DijkstraInvalidEndTest) {
+TEST(PathFindingTestSuite, DijkstraInvalidEndTest) {
     DirectedGraph<int> G;
 
     constexpr double w = 0.1;
@@ -214,7 +211,5 @@ BOOST_AUTO_TEST_CASE(DijkstraInvalidEndTest) {
     G.addEdge(4, 5, w);
 
     const auto path = dijkstra<int, double>(G, 1, 6);
-    BOOST_CHECK(path.empty());
+    EXPECT_TRUE(path.empty());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

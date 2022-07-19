@@ -1,12 +1,18 @@
 # Enable testing.
 enable_testing()
 
-# Find Boost.Test
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+# Get Googletest.
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1
+)
 
-# Add includes.
-include_directories(${Boost_INCLUDE_DIRS})
+if(MSVC)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+endif(MSVC)
 
 # Algorithms.
 set(ALGORITHMS_TESTS
@@ -70,6 +76,8 @@ set(ALL_TESTS
   ${TIMING_TESTS}
 )
 
+include(GoogleTest)
+
 foreach(test_fname ${ALL_TESTS})
   # Get the test module name.
   get_filename_component(test_name ${test_fname} NAME_WE)
@@ -77,11 +85,12 @@ foreach(test_fname ${ALL_TESTS})
   # Add the target.
   add_executable(${test_name} ${test_fname})
   set_target_properties(${test_name} PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
   )
+
+  target_link_libraries(${test_name} GTest::gtest_main)
   
-  # Register a test.
-  add_test(NAME ${test_name} COMMAND ${test_name})
+  gtest_discover_tests(${test_name})
 endforeach()

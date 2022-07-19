@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,20 +30,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE ZipIteratorTests
-
 #include <map>
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <CPPUtils/Iterators/ZipIterator.hpp>
 
 using namespace CPPUtils::Iterators;
 
-BOOST_AUTO_TEST_SUITE(ZipIteratorTestSuite)
-
-BOOST_AUTO_TEST_CASE(ReadOnlyTwoWayZipTest) {
+TEST(ZipIteratorTestSuite, ReadOnlyTwoWayZipTest) {
     const std::vector<int> a = { 0, 1, 2, 3, 4, 5 };
     const std::vector<bool> b = { true, false, true, true };
 
@@ -52,16 +48,16 @@ BOOST_AUTO_TEST_CASE(ReadOnlyTwoWayZipTest) {
     const auto max = b.size();
     size_t idx = 0;
     for (const auto [x, y] : zipper) {
-        BOOST_CHECK_LT(idx, max);
-        BOOST_CHECK_EQUAL(*x, a.at(idx));
-        BOOST_CHECK_EQUAL(*y, b.at(idx));
+        EXPECT_LT(idx, max);
+        EXPECT_EQ(*x, a.at(idx));
+        EXPECT_EQ(*y, b.at(idx));
         idx++;
     }
 
-    BOOST_CHECK_EQUAL(idx, max);
+    EXPECT_EQ(idx, max);
 }
 
-BOOST_AUTO_TEST_CASE(ReadOnlyThreeWayZipTest) {
+TEST(ZipIteratorTestSuite, ReadOnlyThreeWayZipTest) {
     const std::vector<int> a = { 0, 1, 2, 3, 4, 5 };
     const std::vector<bool> b = { true, false, true, true };
     const std::map<char, float> m = {{'a', 0}, {'b', 1}, {'c', 2}};
@@ -71,14 +67,12 @@ BOOST_AUTO_TEST_CASE(ReadOnlyThreeWayZipTest) {
     const auto max = m.size();
     size_t idx = 0;
     for (const auto [x, y, z] : zipper) {
-        BOOST_CHECK_LT(idx, max);
-        BOOST_CHECK_EQUAL(*x, a.at(idx));
-        BOOST_CHECK_EQUAL(*y, b.at(idx));
-        BOOST_CHECK_EQUAL(z->second, m.at(z->first));
+        EXPECT_LT(idx, max);
+        EXPECT_EQ(*x, a.at(idx));
+        EXPECT_EQ(*y, b.at(idx));
+        EXPECT_EQ(z->second, m.at(z->first));
         idx++;
     }
 
-    BOOST_CHECK_EQUAL(idx, max);
+    EXPECT_EQ(idx, max);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

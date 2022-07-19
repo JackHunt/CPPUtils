@@ -30,25 +30,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE GraphTests
 #include <algorithm>
 #include <utility>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <CPPUtils/DataStructures/Graph.hpp>
 
 using namespace CPPUtils::DataStructures;
 
-BOOST_AUTO_TEST_SUITE(GraphTestSuite)
 
 /*
  * Test basic edge class.
  */
-BOOST_AUTO_TEST_CASE(OutwardEdgeTest) {
+TEST(GraphTestSuite, OutwardEdgeTest) {
     Graphs::OutwardEdge<int, int> edge(0, 1);
-    BOOST_CHECK(edge.getVertex() == 0);
-    BOOST_CHECK(edge.getWeight() == 1);
+    EXPECT_EQ(edge.getVertex(), 0);
+    EXPECT_EQ(edge.getWeight(), 1);
 }
 
 /*
@@ -57,18 +55,18 @@ BOOST_AUTO_TEST_CASE(OutwardEdgeTest) {
 template<typename T>
 void EmptyGraphTestImpl() {
     T G;
-    BOOST_CHECK(G.getVertexCardinality() == 0);
-    BOOST_CHECK(G.getVertices().empty());
-    BOOST_CHECK(G.getAdjacencyList(0).empty());
+    EXPECT_EQ(G.getVertexCardinality(), 0);
+    EXPECT_TRUE(G.getVertices().empty());
+    EXPECT_TRUE(G.getAdjacencyList(0).empty());
 }
 
-BOOST_AUTO_TEST_CASE(EmptyGraphTest) {
+TEST(GraphTestSuite, EmptyGraphTest) {
     EmptyGraphTestImpl<Graphs::Graph<int>>();
     EmptyGraphTestImpl<Graphs::Graph<float>>();
     EmptyGraphTestImpl<Graphs::Graph<double>>();
 }
 
-BOOST_AUTO_TEST_CASE(EmptyDirectedGraphTest) {
+TEST(GraphTestSuite, EmptyDirectedGraphTest) {
     EmptyGraphTestImpl<Graphs::Graph<int>>();
     EmptyGraphTestImpl<Graphs::Graph<float>>();
     EmptyGraphTestImpl<Graphs::Graph<double>>();
@@ -86,25 +84,25 @@ void GraphAddVerticesTestImpl() {
         G.addVertex(v);
     }
 
-    BOOST_CHECK(G.getVertexCardinality() == 3);
+    EXPECT_EQ(G.getVertexCardinality(), 3);
 
     for (const auto v : V) {
-        BOOST_CHECK(G.vertexExists(v));
+        EXPECT_TRUE(G.vertexExists(v));
     }
 
     const auto G_V = G.getVertices();
     for (const auto v : V) {
-        BOOST_CHECK(std::find(G_V.begin(), G_V.end(), v) != G_V.end());
+        EXPECT_NE(std::find(G_V.begin(), G_V.end(), v), G_V.end());
     }
 }
 
-BOOST_AUTO_TEST_CASE(GraphAddVerticesTest) {
+TEST(GraphTestSuite, GraphAddVerticesTest) {
     GraphAddVerticesTestImpl<Graphs::Graph<int>>();
     GraphAddVerticesTestImpl<Graphs::Graph<float>>();
     GraphAddVerticesTestImpl<Graphs::Graph<double>>();
 }
 
-BOOST_AUTO_TEST_CASE(DirectedGraphAddVerticesTest) {
+TEST(GraphTestSuite, DirectedGraphAddVerticesTest) {
     GraphAddVerticesTestImpl<Graphs::DirectedGraph<int>>();
     GraphAddVerticesTestImpl<Graphs::DirectedGraph<float>>();
     GraphAddVerticesTestImpl<Graphs::DirectedGraph<double>>();
@@ -126,17 +124,17 @@ void GraphRemoveVerticesTestImpl() {
     G.removeVertex(2);
 
     const auto G_V = G.getVertices();
-    BOOST_CHECK(G_V.size() == 1);
-    BOOST_CHECK(G_V.at(0) == 1);
+    EXPECT_EQ(G_V.size(), 1);
+    EXPECT_EQ(G_V.at(0), 1);
 }
 
-BOOST_AUTO_TEST_CASE(GraphRemoveVerticesTest) {
+TEST(GraphTestSuite, GraphRemoveVerticesTest) {
     GraphRemoveVerticesTestImpl<Graphs::Graph<int>>();
     GraphRemoveVerticesTestImpl<Graphs::Graph<float>>();
     GraphRemoveVerticesTestImpl<Graphs::Graph<double>>();
 }
 
-BOOST_AUTO_TEST_CASE(DirectedGraphRemoveVerticesTest) {
+TEST(GraphTestSuite, DirectedGraphRemoveVerticesTest) {
     GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<int>>();
     GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<float>>();
     GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<double>>();
@@ -145,7 +143,7 @@ BOOST_AUTO_TEST_CASE(DirectedGraphRemoveVerticesTest) {
 /*
  * Test adding edges.
  */
-BOOST_AUTO_TEST_CASE(GraphAddEdgesTest) {
+TEST(GraphTestSuite, GraphAddEdgesTest) {
     Graphs::Graph<int> G;
 
     // Setup the graph.
@@ -156,28 +154,28 @@ BOOST_AUTO_TEST_CASE(GraphAddEdgesTest) {
 
     // Check each vertices connections.
     const auto& adj_0 = G.getAdjacencyList(0);
-    BOOST_CHECK(adj_0.size() == 2);
-    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
-    BOOST_CHECK(adj_0.at(1).getVertex() == 2);
-    BOOST_CHECK(adj_0.at(1).getWeight() == 0.1);
+    EXPECT_EQ(adj_0.size(), 2);
+    EXPECT_EQ(adj_0.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_0.at(0).getWeight(), 0.5);
+    EXPECT_EQ(adj_0.at(1).getVertex(), 2);
+    EXPECT_EQ(adj_0.at(1).getWeight(), 0.1);
 
     const auto& adj_1 = G.getAdjacencyList(1);
-    BOOST_CHECK(adj_1.size() == 2);
-    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_1.at(0).getWeight() == 0.5);
-    BOOST_CHECK(adj_1.at(1).getVertex() == 2);
-    BOOST_CHECK(adj_1.at(1).getWeight() == -0.1);
+    EXPECT_EQ(adj_1.size(), 2);
+    EXPECT_EQ(adj_1.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_1.at(0).getWeight(), 0.5);
+    EXPECT_EQ(adj_1.at(1).getVertex(), 2);
+    EXPECT_EQ(adj_1.at(1).getWeight(), -0.1);
 
     const auto& adj_2 = G.getAdjacencyList(2);
-    BOOST_CHECK(adj_2.size() == 2);
-    BOOST_CHECK(adj_2.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_2.at(0).getWeight() == 0.1);
-    BOOST_CHECK(adj_2.at(1).getVertex() == 1);
-    BOOST_CHECK(adj_2.at(1).getWeight() == -0.1);
+    EXPECT_EQ(adj_2.size(), 2);
+    EXPECT_EQ(adj_2.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_2.at(0).getWeight(), 0.1);
+    EXPECT_EQ(adj_2.at(1).getVertex(), 1);
+    EXPECT_EQ(adj_2.at(1).getWeight(), -0.1);
 }
 
-BOOST_AUTO_TEST_CASE(DirectedGraphAddEdgesTest) {
+TEST(GraphTestSuite, DirectedGraphAddEdgesTest) {
     Graphs::DirectedGraph<int> G;
 
     // Setup the graph.
@@ -189,27 +187,27 @@ BOOST_AUTO_TEST_CASE(DirectedGraphAddEdgesTest) {
 
     // Check each vertices connections.
     const auto& adj_0 = G.getAdjacencyList(0);
-    BOOST_CHECK(adj_0.size() == 1);
-    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+    EXPECT_EQ(adj_0.size(), 1);
+    EXPECT_EQ(adj_0.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_0.at(0).getWeight(), 0.5);
 
     const auto& adj_1 = G.getAdjacencyList(1);
-    BOOST_CHECK(adj_1.size() == 1);
-    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_1.at(0).getWeight() == -0.5);
+    EXPECT_EQ(adj_1.size(), 1);
+    EXPECT_EQ(adj_1.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_1.at(0).getWeight(), -0.5);
 
     const auto& adj_2 = G.getAdjacencyList(2);
-    BOOST_CHECK(adj_2.size() == 2);
-    BOOST_CHECK(adj_2.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_2.at(0).getWeight() == 0.1);
-    BOOST_CHECK(adj_2.at(1).getVertex() == 1);
-    BOOST_CHECK(adj_2.at(1).getWeight() == -0.1);
+    EXPECT_EQ(adj_2.size(), 2);
+    EXPECT_EQ(adj_2.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_2.at(0).getWeight(), 0.1);
+    EXPECT_EQ(adj_2.at(1).getVertex(), 1);
+    EXPECT_EQ(adj_2.at(1).getWeight(), -0.1);
 }
 
 /*
  * Test removing edges.
  */
-BOOST_AUTO_TEST_CASE(GraphRemoveEdgesTest) {
+TEST(GraphTestSuite, GraphRemoveEdgesTest) {
     Graphs::Graph<int> G;
 
     // Setup the graph.
@@ -223,24 +221,24 @@ BOOST_AUTO_TEST_CASE(GraphRemoveEdgesTest) {
 
     // Check each vertices connections.
     const auto& adj_0 = G.getAdjacencyList(0);
-    BOOST_CHECK(adj_0.size() == 1);
-    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+    EXPECT_EQ(adj_0.size(), 1);
+    EXPECT_EQ(adj_0.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_0.at(0).getWeight(), 0.5);
 
     const auto& adj_1 = G.getAdjacencyList(1);
-    BOOST_CHECK(adj_1.size() == 2);
-    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_1.at(0).getWeight() == 0.5);
-    BOOST_CHECK(adj_1.at(1).getVertex() == 2);
-    BOOST_CHECK(adj_1.at(1).getWeight() == -0.1);
+    EXPECT_EQ(adj_1.size(), 2);
+    EXPECT_EQ(adj_1.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_1.at(0).getWeight(), 0.5);
+    EXPECT_EQ(adj_1.at(1).getVertex(), 2);
+    EXPECT_EQ(adj_1.at(1).getWeight(), -0.1);
 
     const auto& adj_2 = G.getAdjacencyList(2);
-    BOOST_CHECK(adj_2.size() == 1);
-    BOOST_CHECK(adj_2.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_2.at(0).getWeight() == -0.1);
+    EXPECT_EQ(adj_2.size(), 1);
+    EXPECT_EQ(adj_2.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_2.at(0).getWeight(), -0.1);
 }
 
-BOOST_AUTO_TEST_CASE(DirectedGraphRemoveEdgesTest) {
+TEST(GraphTestSuite, DirectedGraphRemoveEdgesTest) {
     Graphs::DirectedGraph<int> G;
 
     // Setup the graph.
@@ -255,19 +253,17 @@ BOOST_AUTO_TEST_CASE(DirectedGraphRemoveEdgesTest) {
 
     // Check each vertices connections.
     const auto& adj_0 = G.getAdjacencyList(0);
-    BOOST_CHECK(adj_0.size() == 1);
-    BOOST_CHECK(adj_0.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_0.at(0).getWeight() == 0.5);
+    EXPECT_EQ(adj_0.size(), 1);
+    EXPECT_EQ(adj_0.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_0.at(0).getWeight(), 0.5);
 
     const auto& adj_1 = G.getAdjacencyList(1);
-    BOOST_CHECK(adj_1.size() == 1);
-    BOOST_CHECK(adj_1.at(0).getVertex() == 0);
-    BOOST_CHECK(adj_1.at(0).getWeight() == -0.5);
+    EXPECT_EQ(adj_1.size(), 1);
+    EXPECT_EQ(adj_1.at(0).getVertex(), 0);
+    EXPECT_EQ(adj_1.at(0).getWeight(), -0.5);
 
     const auto& adj_2 = G.getAdjacencyList(2);
-    BOOST_CHECK(adj_2.size() == 1);
-    BOOST_CHECK(adj_2.at(0).getVertex() == 1);
-    BOOST_CHECK(adj_2.at(0).getWeight() == -0.1);
+    EXPECT_EQ(adj_2.size(), 1);
+    EXPECT_EQ(adj_2.at(0).getVertex(), 1);
+    EXPECT_EQ(adj_2.at(0).getWeight(), -0.1);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

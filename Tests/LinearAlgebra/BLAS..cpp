@@ -30,29 +30,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <utility>
-
 #include <gtest/gtest.h>
 
-#include <CPPUtils/ContainerTools/TupleTools.hpp>
+#include <CPPUtils/LinearAlgebra/BLAS.hpp>
 
-using namespace CPPUtils::ContainerTools::Tuple;
+using namespace CPPUtils::LinearAlgebra::BLAS;
 
-
-TEST(TupleToolsTestSuite, TupleForTest) {
-    auto t = std::make_tuple(static_cast<int>(1), 
-                             static_cast<float>(2.0), 
-                             static_cast<long>(-3),
-                             static_cast<double>(-2.5));
-    
-    constexpr auto a = -5.0;
-    
-    tupleFor(t, [&a](size_t idx, auto& elem) {
-        elem += a;
-    });
-
-    EXPECT_EQ(std::get<0>(t), -4);
-    EXPECT_EQ(std::get<1>(t), -3.0);
-    EXPECT_EQ(std::get<2>(t), -8.0);
-    EXPECT_EQ(std::get<3>(t), -7.5);
+TEST(BLASTestSuite, GEMMTest) {
+    //
 }

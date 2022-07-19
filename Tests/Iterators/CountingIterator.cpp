@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,17 +30,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE CountingIteratorTests
-
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <CPPUtils/Iterators/CountingIterator.hpp>
 
 using namespace CPPUtils::Iterators;
 
-BOOST_AUTO_TEST_SUITE(CountingIteratorTestSuite)
 
 template<typename T>
 void counterTestImpl(T a, T b) {
@@ -55,40 +52,38 @@ void counterTestImpl(T a, T b) {
     Counter<T> c(a, b);
     size_t idx = 0;
     for (auto iter = c.begin(); iter != c.end(); iter++) {
-        BOOST_CHECK_LT(idx, true_vals.size());
-        BOOST_CHECK_EQUAL(iter, true_vals.at(idx));
+        EXPECT_LT(idx, true_vals.size());
+        EXPECT_EQ(iter, true_vals.at(idx));
         idx++;
     }
 
-    BOOST_CHECK_EQUAL(idx, true_vals.size());
+    EXPECT_EQ(idx, true_vals.size());
 }
 
-BOOST_AUTO_TEST_CASE(SignedCounterTest) {
+TEST(CountingIteratorTestSuite, SignedCounterTest) {
     counterTestImpl<short>(-127, 127);
     counterTestImpl<int>(-1270, 1270);
     counterTestImpl<long>(-1270, 1270);
 }
 
 /*
-BOOST_AUTO_TEST_CASE(SignedCounterReverseTest) {
+TEST(CountingIteratorTestSuite, SignedCounterReverseTest) {
     counterTestImpl<short>(127, -127);
     counterTestImpl<int>(1270, -1270);
     counterTestImpl<long>(1270, -1270);
 }
 */
 
-BOOST_AUTO_TEST_CASE(UnsignedCounterTest) {
+TEST(CountingIteratorTestSuite, UnsignedCounterTest) {
     counterTestImpl<unsigned short>(0, 127);
     counterTestImpl<unsigned int>(0, 1270);
     counterTestImpl<unsigned long>(0, 1270);
 }
 
 /*
-BOOST_AUTO_TEST_CASE(UnsignedCounterReverseTest) {
+TEST(CountingIteratorTestSuite, UnsignedCounterReverseTest) {
     counterTestImpl<unsigned short>(127, 0);
     counterTestImpl<unsigned int>(1270, 0);
     counterTestImpl<unsigned long>(1270, 0);
 }
 */
-
-BOOST_AUTO_TEST_SUITE_END()

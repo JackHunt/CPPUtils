@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE CSVFileTests
-
 #include <filesystem>
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <CPPUtils/IO/CSVFile.hpp>
 
@@ -43,16 +41,14 @@ using namespace CPPUtils::IO;
 
 template<typename T>
 static void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
-    BOOST_CHECK_EQUAL(a.size(), b.size());
+    EXPECT_EQ(a.size(), b.size());
 
     for (size_t i = 0; i < a.size(); i++) {
-        BOOST_CHECK(a.at(i) == b.at(i));
+        EXPECT_EQ(a.at(i), b.at(i));
     }
 }
 
-BOOST_AUTO_TEST_SUITE(CSVFileTestSuite)
-
-BOOST_AUTO_TEST_CASE(BasicCSVWriteReadTest) {
+TEST(CSVTestSuite, BasicCSVWriteReadTest) {
     // Test data.
     constexpr auto a = "3.14, True, 2, 6.28, abc";
     constexpr auto b = "6.28, False, -2, 3.14, cba";
@@ -80,15 +76,15 @@ BOOST_AUTO_TEST_CASE(BasicCSVWriteReadTest) {
     const auto rows = csv.getData();
     const auto rows2 = csv2.getData();
 
-    BOOST_CHECK_EQUAL(rows.size(), rows2.size());
-    BOOST_CHECK_EQUAL(csv.getNumRows(), csv2.getNumRows());
+    EXPECT_EQ(rows.size(), rows2.size());
+    EXPECT_EQ(csv.getNumRows(), csv2.getNumRows());
 
     for (size_t i = 0; i < rows.size(); i++) {
         verifyEqual(rows.at(i), rows2.at(i));
     }
 
     // Clear up.
-    BOOST_CHECK(std::filesystem::remove(fname));
+    EXPECT_TRUE(std::filesystem::remove(fname));
 }
 
 template<typename T, typename U>
@@ -109,7 +105,7 @@ static void typeParseTestImpl() {
     verifyEqual(types, types2);
 }
 
-BOOST_AUTO_TEST_CASE(CSVTypeParseTest) {
+TEST(CSVTestSuite, CSVTypeParseTest) {
     typeParseTestImpl<float, short>();
     typeParseTestImpl<float, int>();
     typeParseTestImpl<float, long>();
@@ -118,5 +114,3 @@ BOOST_AUTO_TEST_CASE(CSVTypeParseTest) {
     typeParseTestImpl<double, int>();
     typeParseTestImpl<double, long>();
 }
-
-BOOST_AUTO_TEST_SUITE_END()

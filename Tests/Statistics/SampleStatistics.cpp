@@ -30,20 +30,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define BOOST_TEST_MODULE SampleStatisticsTests
-
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <CPPUtils/Statistics/SampleStatistics.hpp>
 
 using namespace CPPUtils::Statistics;
 
-BOOST_AUTO_TEST_SUITE(SampleStatisticsTestSuite)
-
-BOOST_AUTO_TEST_CASE(SampleMeanTest) {
+TEST(SampleStatisticsTestSuite, SampleMeanTest) {
     //
 }
-
-BOOST_AUTO_TEST_SUITE_END()
