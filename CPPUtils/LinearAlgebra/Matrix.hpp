@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPP_UTILS_LINEAR_ALGEBRA_MATRIX_H
 
 #include <memory>
+#include <span>
 #include <stdexcept>
 
 #include <CPPUtils/DataStructures/Buffers.hpp>
@@ -55,20 +56,50 @@ namespace CPPUtils::LinearAlgebra {
         }
 
         template<typename T, DeviceType TD>
-        inline Matrix<T, TD>& copy(const Matrix<T, CPU>& M) {
-            //
+        inline Matrix<T, TD> copy(const Matrix<T, CPU>& M) {
+            if constexpr (TD == CPU) {
+                return Matrix<T, CPU>(M);
+            }
+
+            if constexpr (TD == CUDA) {
+                //
+            }
+
+            throw std::runtime_error("Unknown device copy type")
         }
 
         template<typename T, DeviceType TD>
-        inline Matrix<T, TD>& copy(const Matrix<T, CUDA>& M) {
-            //
+        inline Matrix<T, TD> copy(const Matrix<T, CUDA>& M) {
+            if constexpr (TD == CUDA) {
+                return Matrix<T, CUDA>(M);
+            }
+
+            if constexpr (TD == CPU) {
+                //
+            }
+
+            throw std::runtime_error("Unknown device copy type")
+        }
+
+        template<typename T, DeviceType D>
+        inline Matrix<T, D> ones(size_t rows, size_t columns) {
+            Matrix<T, D> A(rows, columns);
+            A->setAllToValue(1.0);
+            return A;
+        }
+
+        template<typename T, DeviceType D>
+        inline Matrix<T, D> zeros(size_t rows, size_t columns) {
+            Matrix<T, D> A(rows, columns);
+            A->setAllToValue(0.0);
+            return A;
         }
     }
 
     template<typename T = float, Util::DeviceType D = Util::DeviceType::CPU>
     class Matrix {
     protected:
-        std::unique_ptr<Buffer<T>> elements;
+        std::shared_ptr<Buffer<T>> elements;
 
         const size_t rows;
         const size_t columns;
@@ -81,7 +112,21 @@ namespace CPPUtils::LinearAlgebra {
             columns(columns),
             is_transpose(false),
             is_triangular(false) {
-            //
+            // Allocate the buffer based on the device.
+            const auto N = rows() * columns();
+            switch (D) {
+                case Util::DeviceType::CPU: {
+                    elements = std::make_shared<CPUBuffer<T>>(N);
+                    break;
+                }
+                case Util::DeviceType::CUDA: {
+                    throw std::runtime_error("CUDA is not supported night now.");
+                    break;
+                }
+                default: {
+                    throw std::runtime_error("Unknown device type.");
+                }
+            }
         }
 
         virtual ~Matrix() {
@@ -94,6 +139,10 @@ namespace CPPUtils::LinearAlgebra {
 
         virtual T* data() {
             return elements->ptr();
+        }
+
+        virtual std::shared_ptr<Buffer<T>> getElementBuffer() const {
+            return elements;
         }
 
         virtual Matrix<T, D>& t() {
@@ -132,6 +181,18 @@ namespace CPPUtils::LinearAlgebra {
         bool is_triangular() const {
             return is_triangular;
         }
+
+        void setAllToValue(T val) {
+            elements->setAllToValue(val);
+        }
+
+        void setContents(const std::span<T>& vals) {
+            elements->setContents(vals);
+        }
+
+        std::shared_ptr<Buffer<T>> getBuffer() {
+            return elements;
+        }
     };
 
     /*
@@ -148,9 +209,11 @@ namespace CPPUtils::LinearAlgebra {
                 "Matrix inner dimensions must match.");
         }
 
-        Matrix<T, D> A(lhs.rows(), rhs.columns());
+        Matrix<T, D> A(M, N);
         BLAS::gemm(lhs.ptr(), rhs.ptr(), A.ptr(),
-                   lhs.rows(), lhs.columns(), rhs.columns())
+                   BLAS::GEMMCallConfig(M, K, N,
+                                        lhs.is_transposed(),
+                                        rhs.is_transposed()));
         return A;
     }
 
@@ -165,7 +228,7 @@ namespace CPPUtils::LinearAlgebra {
         }
 
         Matrix<T, D> A(lhs);
-        BLAS::axpy(A.ptr(), rhs.ptr(), 1.0, N);
+        BLAS::axpy(A.ptr(), rhs.ptr(), BLAS::AXPYCallConfig(1.0, N));
 
         return A;
     }
@@ -181,7 +244,7 @@ namespace CPPUtils::LinearAlgebra {
         }
 
         Matrix<T, D> A(lhs);
-        BLAS::axpy(A.ptr(), rhs.ptr(), -1.0, N);
+        BLAS::axpy(A.ptr(), rhs.ptr(), BLAS::AXPYCallConfig(-1.0, N));
 
         return A;
     }
@@ -192,22 +255,19 @@ namespace CPPUtils::LinearAlgebra {
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator*=(Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
         const auto A = lhs * rhs;
-        // Handle copy
-        return lhs;
+        return std::move(A);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator+=(Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
         const auto A = lhs + rhs;
-        // Handle copy
-        return lhs;
+        return std::move(A);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator-=(Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
         const auto A = lhs - rhs;
-        // Handle copy
-        return lhs;
+        return std::move(A);
     }
 
     /*
@@ -215,22 +275,29 @@ namespace CPPUtils::LinearAlgebra {
      */
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator*(const Matrix<T, D>& lhs, T rhs) {
-        // Multiply
+        Matrix<T, D> A(lhs);
+
+        const auto N = lhs.rows() * lhs.columns();
+        BLAS::scal(A.data(), BLAS::SCALCallConfig(rhs, N))
+
+        return A;
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator/(const Matrix<T, D>& lhs, T rhs) {
-        // Divide
+        return lhs * (1.0 / rhs);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator+(const Matrix<T, D>& lhs, T rhs) {
-        // Add
+        Matrix<T, D> A(lhs.rows(), lhs.columns());
+        A->setAllToValue(rhs);
+        return lhs + A;
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator-(const Matrix<T, D>& lhs, T rhs) {
-        // Subtract
+        return lhs + (-1.0 * rhs);
     }
 
     /*
@@ -238,22 +305,26 @@ namespace CPPUtils::LinearAlgebra {
      */
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator*=(Matrix<T, D>& lhs, T rhs) {
-        // Multiply
+        const auto A = lhs * rhs;
+        return std::move(A);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator/=(Matrix<T, D>& lhs, T rhs) {
-        // Divide
+        const auto A = lhs / rhs;
+        return std::move(A);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator+=(Matrix<T, D>& lhs, T rhs) {
-        // Add
+         const auto A = lhs + rhs;
+        return std::move(A);
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D>& operator-=(Matrix<T, D>& lhs, T rhs) {
-        // Subtract
+        const auto A = lhs - rhs;
+        return std::move(A);
     }
 }
 

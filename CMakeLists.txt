@@ -5,9 +5,10 @@
 # Set project name and minimum CMake version.
 project(CPPUtils)
 cmake_minimum_required(VERSION 3.18)
+enable_language(CXX)
 
 # Set standard.
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Algorithms.
 set(ALGORITHMS_HEADERS
@@ -43,13 +44,19 @@ set(ITERATORS_HEADERS
 )
 source_group(Iterators FILES ${ITERATORS_HEADERS})
 
-# Linear Algebra.
-set(LINEAR_ALGEBRA_HEADERS
-  CPPUtils/LinearAlgebra/BLAS.hpp
-  CPPUtils/LinearAlgebra/Matrix.hpp
-  CPPUtils/LinearAlgebra/Vector.hpp
-)
-source_group(LinearAlgebra FILES ${LINEAR_ALGEBRA_HEADERS})
+# Add option to add Linear Algebra utils. Requires BLAS & LAPACK.
+option(ENABLE_LINEAR_ALGEBRA "Enable Linear Algebra?" OFF)
+if(ENABLE_LINEAR_ALGEBRA)
+  find_package(MKL CONFIG REQUIRED)
+
+  set(LINEAR_ALGEBRA_HEADERS
+    CPPUtils/LinearAlgebra/BLAS.hpp
+    CPPUtils/LinearAlgebra/LAPACK.hpp
+    CPPUtils/LinearAlgebra/Matrix.hpp
+    CPPUtils/LinearAlgebra/Vector.hpp
+  )
+  source_group(LinearAlgebra FILES ${LINEAR_ALGEBRA_HEADERS})
+endif(ENABLE_LINEAR_ALGEBRA)
 
 # Statistics
 set(STATISTICS_HEADERS

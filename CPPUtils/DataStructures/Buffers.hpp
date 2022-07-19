@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPP_UTILS_DATA_STRUCTURES_BUFFERS_H
 
 #include <cstring>
+#include <span>
 #include <stdexcept>
 
 namespace CPPUtils::DataStructures::Buffers {
@@ -54,6 +55,14 @@ namespace CPPUtils::DataStructures::Buffers {
         virtual ~Buffer() = 0;
 
         virtual T operator[](size_t idx) = 0;
+
+        virtual void setAllToValue(T) = 0;
+
+        virtual void setContents(const std::span<T>& vals) {
+            if (vals.size() != buffer_size) {
+                throw std::length_error("Incorrect value count.");
+            }
+        }
 
         const T* ptr() const {
             return data;
@@ -77,15 +86,24 @@ namespace CPPUtils::DataStructures::Buffers {
 
         CPUBuffer(const CPUBuffer<T>& buffer) : Buffer<T>(buffer.size()) {
             const auto N = size() * sizeof(T);
-            std::memcpy(data, buffer.ptr(), N);
+            std::memcpy(&data[0], buffer.ptr(), N);
         }
 
         virtual ~CPUBuffer() {
             delete[] data;
         }
 
-        virtual T operator[](size_t idx) const {
+        virtual T operator[](size_t idx) const override {
             return data[idx];
+        }
+
+        virtual void setAllToValue(T val) override {
+            std::memset(&data[0], val, size() * sizeof(T));
+        }
+
+        virtual void setContents(const std::span<T>& vals) override {
+            Buffer<T>::setContents(vals);
+            std::memcpy(data, vals.data(), vals.size() * sizeof(T));
         }
     };
 
