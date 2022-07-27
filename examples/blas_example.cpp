@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::LinearAlgebra::BLAS;
 
-int main() {
+void gemmExample() {
   std::array<float, 9> A = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::array<float, 9> B = {9, 8, 7, 6, 5, 4, 3, 2, 1};
   std::array<float, 9> C;
@@ -49,6 +49,38 @@ int main() {
     std::cout << e << " ";
   }
   std::cout << std::endl;
+}
 
+void axpyExample() {
+  std::array<float, 4> Y = {1, 1, 1, 1};
+  std::array<float, 4> X = {1, 2, 3, 4};
+  const float alpha = 2.0;
+
+  AXPYCallConfig cfg(4, alpha);
+  axpy(Y.data(), X.data(), cfg);
+
+  for (auto e : Y) {
+    std::cout << e << " ";
+  }
+  std::cout << std::endl;
+}
+
+void scalExample() {
+  std::array<float, 4> Y = {1, 1, 1, 1};
+  const float alpha = 2.0;
+
+  SCALCallConfig cfg(4, alpha);
+  scal(Y.data(), cfg);
+
+  for (auto e : Y) {
+    std::cout << e << " ";
+  }
+  std::cout << std::endl; 
+}
+
+int main() {
+  //gemmExample();
+  //axpyExample();
+  scalExample();
   return 0;
 }

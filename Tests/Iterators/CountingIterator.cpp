@@ -66,13 +66,11 @@ TEST(CountingIteratorTestSuite, SignedCounterTest) {
     counterTestImpl<long>(-1270, 1270);
 }
 
-/*
 TEST(CountingIteratorTestSuite, SignedCounterReverseTest) {
     counterTestImpl<short>(127, -127);
     counterTestImpl<int>(1270, -1270);
     counterTestImpl<long>(1270, -1270);
 }
-*/
 
 TEST(CountingIteratorTestSuite, UnsignedCounterTest) {
     counterTestImpl<unsigned short>(0, 127);
@@ -80,10 +78,8 @@ TEST(CountingIteratorTestSuite, UnsignedCounterTest) {
     counterTestImpl<unsigned long>(0, 1270);
 }
 
-/*
 TEST(CountingIteratorTestSuite, UnsignedCounterReverseTest) {
     counterTestImpl<unsigned short>(127, 0);
     counterTestImpl<unsigned int>(1270, 0);
     counterTestImpl<unsigned long>(1270, 0);
 }
-*/
