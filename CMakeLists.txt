@@ -47,7 +47,7 @@ source_group(Iterators FILES ${ITERATORS_HEADERS})
 # Add option to add Linear Algebra utils. Requires BLAS & LAPACK.
 option(ENABLE_LINEAR_ALGEBRA "Enable Linear Algebra?" OFF)
 if(ENABLE_LINEAR_ALGEBRA)
-  find_package(MKL CONFIG REQUIRED)
+  find_package(LAPACK REQUIRED)
 
   set(LINEAR_ALGEBRA_HEADERS
     CPPUtils/LinearAlgebra/BLAS.hpp

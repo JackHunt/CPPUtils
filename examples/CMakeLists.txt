@@ -20,11 +20,4 @@ add_executable(TimerExample TimerExample.cpp)
 add_executable(PathFindingExample PathFindingExample.cpp)
 
 add_executable(BLASExample blas_example.cpp)
-target_include_directories(BLASExample PUBLIC "${MKL_ROOT}/include")
-target_link_directories(BLASExample PUBLIC "${MKL_ROOT}/lib/intel64")
-
-target_compile_definitions(BLASExample PUBLIC MKL_ILP64)
-target_link_libraries(BLASExample
-  PUBLIC mkl_intel_ilp64.lib
-  PUBLIC mkl_core.lib
-  PUBLIC mkl_sequential.lib)
+target_link_libraries(BLASExample blas lapack)
