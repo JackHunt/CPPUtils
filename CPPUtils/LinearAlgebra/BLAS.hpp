@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CPP_UTILS_LINEAR_ALGEBRA_BLAS_H
 #define CPP_UTILS_LINEAR_ALGEBRA_BLAS_H
 
-#include <mkl.h>
+#include <cblas.h>
 
 #include <stdexcept>
 
