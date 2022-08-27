@@ -32,8 +32,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 #include <CPPUtils/Algorithms/Hashing.hpp>
+#include <CPPUtils/Algorithms/PathFinding.hpp>
 
+using CPPUtils::Algorithms::AStarSearch;
 using CPPUtils::Algorithms::cantorHash;
+using CPPUtils::Algorithms::dijkstra;
+using CPPUtils::DataStructures::Graphs::Graph;
 
 enum class CellState : unsigned short {
     START,
@@ -84,12 +88,6 @@ namespace std {
         }
     };
 }
-
-#include <CPPUtils/Algorithms/PathFinding.hpp>
-
-using CPPUtils::DataStructures::Graphs::Graph;
-using CPPUtils::Algorithms::AStarSearch;
-using CPPUtils::Algorithms::dijkstra;
 
 static constexpr unsigned short H = 5;
 static constexpr unsigned short W = 6;
@@ -231,7 +229,9 @@ int main() {
     };
 
     std::cout << "A* path from starting cell:" << std::endl;
-    const auto aStarPath = AStarSearch<Cell>(G, *S, goalTest, heuristic);
+    const auto aStarPath = AStarSearch<Cell, double, double>(
+        G, *S, goalTest, heuristic);
+
     for (const auto& v : aStarPath) {
         std::cout << v << std::endl;
     }

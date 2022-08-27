@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,8 @@ namespace CPPUtils::Algorithms {
 
     template<typename T, typename U = double>
     struct VertexCostPriority final {
-        bool operator()(const RankedVertex<T, U>& a, const RankedVertex<T, U>& b) const {
+        bool operator()(const RankedVertex<T, U>& a,
+                        const RankedVertex<T, U>& b) const {
             return a.first < b.first;
         }
     };
@@ -95,8 +96,9 @@ namespace CPPUtils::Algorithms {
         return reversedPath;
     }
 
-    template<typename T, typename U, typename V = double>
-    inline std::vector<T> AStarSearch(const Graph<T, U>& G, const T& startingVertex,
+    template<typename T, typename U = double, typename V = double>
+    inline std::vector<T> AStarSearch(const Graph<T, U>& G,
+                                      const T& startingVertex,
                                       std::function<bool(T)> goalTest,
                                       std::function<V(T, T)> heuristic) {
         // Sanity check the starting vertex.
@@ -155,7 +157,9 @@ namespace CPPUtils::Algorithms {
     }
 
     template<typename T, typename U = double>
-    inline std::vector<T> dijkstra(const Graph<T, U>& G, const T& src, const T& sink) {
+    inline std::vector<T> dijkstra(const Graph<T, U>& G,
+                                   const T& src,
+                                   const T& sink) {
         // Goal state test; if a given vertex is the sink vertex.
         auto g = [sink](const T& a) -> bool {
             return a == sink;
