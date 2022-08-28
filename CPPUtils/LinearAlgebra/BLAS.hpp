@@ -42,12 +42,12 @@ namespace CPPUtils::LinearAlgebra::BLAS {
      * GEMM
      */
     struct GEMMCallConfig final {
-        const size_t M, K, N;
+        const unsigned int M, K, N;
         const CBLAS_TRANSPOSE transA, transB;
         const float alpha, beta;
-        const size_t lda, ldb, ldc;
+        const unsigned int lda, ldb, ldc;
 
-        GEMMCallConfig(size_t M, size_t K, size_t N,
+        GEMMCallConfig(unsigned int M, unsigned int K, unsigned int N,
                        bool transA = false, bool transB = false,
                        float alpha = 1.0, float beta = 0.0) : 
             M(M), K(K), N(N),
@@ -60,10 +60,10 @@ namespace CPPUtils::LinearAlgebra::BLAS {
             //
         }
 
-        GEMMCallConfig(size_t M, size_t K, size_t N,
+        GEMMCallConfig(unsigned int M, unsigned int K, unsigned int N,
                        CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
                        float alpha, float beta,
-                       size_t lda, size_t ldb, size_t ldc) : 
+                       unsigned int lda, unsigned int ldb, unsigned int ldc) :
             M(M), K(K), N(N),
             transA(transA), transB(transB),
             alpha(alpha), beta(beta),
@@ -75,7 +75,7 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     template<typename T>
     inline void gemm(const T* const A, const T* const B, T* const C,
                      const GEMMCallConfig& cfg) {
-        throw std::logic_error("Unknown data type for GEMM.");
+        throw std::domain_error("Unknown data type for GEMM.");
     }
 
     template<>
@@ -96,16 +96,16 @@ namespace CPPUtils::LinearAlgebra::BLAS {
      * AXPY
      */
     struct AXPYCallConfig final {
-        const size_t N;
+        const unsigned int N;
         const float alpha;
-        const size_t incx, incy;
+        const unsigned int incx, incy;
 
-        AXPYCallConfig(size_t N, float alpha) :
+        AXPYCallConfig(unsigned int N, float alpha) :
             N(N), alpha(alpha), incx(1), incy(1) {
              //
         }
 
-        AXPYCallConfig(size_t N, float alpha, size_t incx, size_t incy) :
+        AXPYCallConfig(unsigned int N, float alpha, unsigned int incx, unsigned int incy) :
             N(N), alpha(alpha), incx(incx), incy(incy) {
             //
         }
@@ -113,7 +113,7 @@ namespace CPPUtils::LinearAlgebra::BLAS {
 
     template<typename T>
     inline void axpy(T* const Y, const T* const X, const AXPYCallConfig& cfg) {
-        throw std::logic_error("Unknown data type for AXPY.");
+        throw std::domain_error("Unknown data type for AXPY.");
     }
 
     template<>
@@ -130,16 +130,16 @@ namespace CPPUtils::LinearAlgebra::BLAS {
      * SCAL
      */
     struct SCALCallConfig final {
-        const size_t N;
+        const unsigned int N;
         const float alpha;
-        const size_t incx;
+        const unsigned int incx;
 
-        SCALCallConfig(size_t N, float alpha) :
+        SCALCallConfig(unsigned int N, float alpha) :
             N(N), alpha(alpha), incx(1) {
              //
         }
 
-        SCALCallConfig(size_t N, float alpha, size_t incx) :
+        SCALCallConfig(unsigned int N, float alpha, unsigned int incx) :
             N(N), alpha(alpha), incx(incx) {
             //
         }
@@ -147,7 +147,7 @@ namespace CPPUtils::LinearAlgebra::BLAS {
 
     template<typename T>
     inline void scal(T* const X, const SCALCallConfig& cfg) {
-        throw std::logic_error("Unknown data type for SCAL.");
+        throw std::domain_error("Unknown data type for SCAL.");
     }
 
     template<>
