@@ -3,9 +3,9 @@ project(CPPUtilsExamples)
 
 # Set CXX standard.
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20")
 else(MSVC)
-  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif(MSVC)
 
@@ -21,3 +21,6 @@ add_executable(PathFindingExample PathFindingExample.cpp)
 
 add_executable(BLASExample blas_example.cpp)
 target_link_libraries(BLASExample blas lapack)
+
+add_executable(LAPACKExample lapack_example.cpp)
+target_link_libraries(LAPACKExample blas lapack)
