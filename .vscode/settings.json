@@ -79,6 +79,16 @@
     "set": "cpp",
     "span": "cpp",
     "stop_token": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "*.tcc": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "cstdarg": "cpp",
+    "cwctype": "cpp",
+    "memory_resource": "cpp",
+    "random": "cpp",
+    "string_view": "cpp",
+    "ranges": "cpp",
+    "cinttypes": "cpp"
   }
 }
