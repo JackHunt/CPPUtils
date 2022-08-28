@@ -30,6 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <array>
 #include <iostream>
 #include <vector>
 
@@ -37,21 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::LinearAlgebra::LAPACK;
 
-void getrfExample() {
-    std::vector<float> A(16, 1.0);
-
-    GETRFCallConfig cfg(4, 4);
-    const auto status = getrf<float>(A, cfg);
-
-    for (unsigned short i = 0; i < 16; i++) {
-        std::cout << A[i] << " ";
-        if ((i + 1) % 4 == 0) {
-            std::cout << std::endl;
-        }
-    }
-
+void check_lu_status(const GETRFExecutionStatus& status) {
     std::cout << std::endl;
-
     std::cout << "SUCCESS: " << status.success() << std::endl;
 
     if (status.illegal_value()) {
@@ -64,7 +52,48 @@ void getrfExample() {
     }
 }
 
+void getrf_example() {
+    std::vector<float> A(16, 1.0);
+
+    GETRFCallConfig cfg(4, 4);
+    const auto status = getrf<float>(A, cfg);
+
+    for (unsigned short i = 0; i < 16; i++) {
+        std::cout << A[i] << " ";
+        if ((i + 1) % 4 == 0) {
+            std::cout << std::endl;
+        }
+    }
+
+    check_lu_status(status);
+}
+
+void gesv_example() {
+    std::array<float, 9> A = {1, 1, 1, 3, 1, -3, 1, -2 -5};
+    std::array<float, 3> B = {1, 5, 10};
+
+    GESVCallConfig cfg(3);
+    const auto status = gesv<float>(A, B, cfg);
+
+    std::cout << "L and U Factors:" << std::endl;
+    for (unsigned short i = 0; i < 9; i++) {
+        std::cout << A[i] << " ";
+        if ((i + 1) % 3 == 0) {
+            std::cout << std::endl;
+        }
+    }
+
+    std::cout << "Solution:" << std::endl;
+    for (unsigned short i = 0; i < 3; i++) {
+        std::cout << B[i] << " ";
+    }
+    std::cout << std::endl;
+
+    check_lu_status(status);
+}
+
 int main() {
-    getrfExample();
+    //getrf_example();
+    gesv_example();
     return 0;
 }

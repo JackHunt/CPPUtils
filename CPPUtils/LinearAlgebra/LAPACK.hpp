@@ -40,8 +40,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 extern "C" {
+    // LU factorization.
     void sgetrf_(int*, int*, float*, int*, int*, int*);
     void dgetrf_(int*, int*, double*, int*, int*, int*);
+
+    // System solve via LU factorizaion.
+    void sgesv_(int*, int*, float*, int*, int*, float*, int*, int*);
+    void dgesv_(int*, int*, double*, int*, int*, double*, int*, int*);
 }
 
 namespace CPPUtils::LinearAlgebra::LAPACK {
@@ -167,6 +172,81 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
         dgetrf_(&M, &N, A.data(), &LDA, ipiv.data(), &status);
 
         return GETRFExecutionStatus(status, ipiv);
+    }
+
+    /*
+     * GESV - Solve AX = B for X via LU factorization.
+     */
+    struct GESVCallConfig final {
+        const unsigned int N, NRHS;
+        const unsigned int lda, ldb;
+
+        GESVCallConfig() = delete;
+
+        explicit GESVCallConfig(unsigned int N, unsigned int NRHS,
+                                unsigned int lda, unsigned int ldb) :
+            N(N), NRHS(NRHS), lda(lda), ldb(ldb) {
+            // Check N >= 0.
+            if (N < 0) {
+                throw std::domain_error("N must be greater than 0.");
+            }
+
+            // Check NRHS >= 0.
+            if (NRHS < 0) {
+                throw std::domain_error("NRHS must be greater than 0.");
+            }
+
+            // Check LDA >= max(1,N).
+            if (lda < std::max(static_cast<unsigned int>(1), N)) {
+                throw std::domain_error("LDA must be greater than or equal to max(1, M).");
+            }
+
+            // Check LDB >= max(1,N).
+            if (ldb < std::max(static_cast<unsigned int>(1), N)) {
+                throw std::domain_error("LDB must be greater than or equal to max(1, M).");
+            }
+        }
+
+        explicit GESVCallConfig(unsigned int N) :
+            GESVCallConfig(N, 1, N, N) {
+            //
+        }
+    };
+
+    using GESVExecutionStatus = GETRFExecutionStatus;
+
+    template<typename T>
+    inline GESVExecutionStatus gesv(std::span<T> A, std::span<T> B,
+                                    const GESVCallConfig cfg) {
+        throw std::domain_error("Unknown data type for GESV.");
+    }
+
+    template<>
+    inline GESVExecutionStatus gesv(std::span<float> A, std::span<float> B,
+                                    const GESVCallConfig cfg) {
+        std::vector<int> ipiv(cfg.N);
+        int N = cfg.N;
+        int NRHS = cfg.NRHS;
+        int lda = cfg.lda;
+        int ldb = cfg.ldb;
+        int status = 0;
+        sgesv_(&N, &NRHS, A.data(), &lda, ipiv.data(), B.data(), &ldb, &status);
+
+        return GESVExecutionStatus(status, ipiv);
+    }
+
+    template<>
+    inline GESVExecutionStatus gesv(std::span<double> A, std::span<double> B,
+                                    const GESVCallConfig cfg) {
+        std::vector<int> ipiv(cfg.N);
+        int N = cfg.N;
+        int NRHS = cfg.NRHS;
+        int lda = cfg.lda;
+        int ldb = cfg.ldb;
+        int status = 0;
+        dgesv_(&N, &NRHS, A.data(), &lda, ipiv.data(), B.data(), &ldb, &status);
+
+        return GESVExecutionStatus(status, ipiv);
     }
 }
 
