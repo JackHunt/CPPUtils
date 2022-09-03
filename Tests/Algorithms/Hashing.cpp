@@ -30,6 +30,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <array>
+#include <tuple>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -38,46 +40,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Algorithms;
 
-TEST(HashingTestSuite, CantorHashTest) {
-    EXPECT_EQ(cantorHash(0, 0), 0);
-    EXPECT_EQ(cantorHash(0, 1), 2);
-    EXPECT_EQ(cantorHash(0, 2), 5);
-    EXPECT_EQ(cantorHash(0, 3), 9);
+class CantorHashingTestSuite : public ::testing::Test {
+ public:
+    static constexpr std::array<std::tuple<int, int, int>, 16> cases = {
+        {
+            {0, 0, 0},
+            {0, 1, 2},
+            {0, 2, 5},
+            {0, 3, 9},
+            {1, 0, 1},
+            {1, 1, 4},
+            {1, 2, 8},
+            {1, 3, 13},
+            {2, 0, 3},
+            {2, 1, 7},
+            {2, 2, 12},
+            {2, 3, 18},
+            {3, 0, 6},
+            {3, 1, 11},
+            {3, 2, 17},
+            {3, 3, 24}
+        }
+    };
 
-    EXPECT_EQ(cantorHash(1, 0), 1);
-    EXPECT_EQ(cantorHash(1, 1), 4);
-    EXPECT_EQ(cantorHash(1, 2), 8);
-    EXPECT_EQ(cantorHash(1, 3), 13);
+ protected:
+  void SetUp() override {
+    //
+  }
+};
 
-    EXPECT_EQ(cantorHash(2, 0), 3);
-    EXPECT_EQ(cantorHash(2, 1), 7);
-    EXPECT_EQ(cantorHash(2, 2), 12);
-    EXPECT_EQ(cantorHash(2, 3), 18);
-
-    EXPECT_EQ(cantorHash(3, 0), 6);
-    EXPECT_EQ(cantorHash(3, 1), 11);
-    EXPECT_EQ(cantorHash(3, 2), 17);
-    EXPECT_EQ(cantorHash(3, 3), 24);
+TEST(CantorHashingTestSuite, CantorHashTest) {
+    for (auto &[a, b, c] : CantorHashingTestSuite::cases) {
+        ASSERT_EQ(cantorHash(a, b), c);
+    }
 }
 
 TEST(HashingTestSuite, InverseCantorHashTest) {
-    EXPECT_EQ(inverseCantorHash(0), std::make_pair<int>(0, 0));
-    EXPECT_EQ(inverseCantorHash(2), std::make_pair<int>(0, 1));
-    EXPECT_EQ(inverseCantorHash(5), std::make_pair<int>(0, 2));
-    EXPECT_EQ(inverseCantorHash(9), std::make_pair<int>(0, 3));
-
-    EXPECT_EQ(inverseCantorHash(1), std::make_pair<int>(1, 0));
-    EXPECT_EQ(inverseCantorHash(4), std::make_pair<int>(1, 1));
-    EXPECT_EQ(inverseCantorHash(8), std::make_pair<int>(1, 2));
-    EXPECT_EQ(inverseCantorHash(13), std::make_pair<int>(1, 3));
-
-    EXPECT_EQ(inverseCantorHash(3), std::make_pair<int>(2, 0));
-    EXPECT_EQ(inverseCantorHash(7), std::make_pair<int>(2, 1));
-    EXPECT_EQ(inverseCantorHash(12), std::make_pair<int>(2, 2));
-    EXPECT_EQ(inverseCantorHash(18), std::make_pair<int>(2, 3));
-
-    EXPECT_EQ(inverseCantorHash(6), std::make_pair<int>(3, 0));
-    EXPECT_EQ(inverseCantorHash(11), std::make_pair<int>(3, 1));
-    EXPECT_EQ(inverseCantorHash(17), std::make_pair<int>(3, 2));
-    EXPECT_EQ(inverseCantorHash(24), std::make_pair<int>(3, 3));
+    for (auto &[a, b, c] : CantorHashingTestSuite::cases) {
+        ASSERT_EQ(inverseCantorHash(c), std::make_pair(a, b));
+    }
 }
