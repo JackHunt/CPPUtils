@@ -39,7 +39,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Iterators;
 
-TEST(ZipIteratorTestSuite, ReadOnlyTwoWayZipTest) {
+class ZipIteratorTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+      //
+    }
+};
+
+TEST_F(ZipIteratorTestSuite, ReadOnlyTwoWayZipTest) {
     const std::vector<int> a = { 0, 1, 2, 3, 4, 5 };
     const std::vector<bool> b = { true, false, true, true };
 
@@ -48,16 +55,16 @@ TEST(ZipIteratorTestSuite, ReadOnlyTwoWayZipTest) {
     const auto max = b.size();
     size_t idx = 0;
     for (const auto [x, y] : zipper) {
-        EXPECT_LT(idx, max);
-        EXPECT_EQ(*x, a.at(idx));
-        EXPECT_EQ(*y, b.at(idx));
+        ASSERT_LT(idx, max);
+        ASSERT_EQ(*x, a.at(idx));
+        ASSERT_EQ(*y, b.at(idx));
         idx++;
     }
 
-    EXPECT_EQ(idx, max);
+    ASSERT_EQ(idx, max);
 }
 
-TEST(ZipIteratorTestSuite, ReadOnlyThreeWayZipTest) {
+TEST_F(ZipIteratorTestSuite, ReadOnlyThreeWayZipTest) {
     const std::vector<int> a = { 0, 1, 2, 3, 4, 5 };
     const std::vector<bool> b = { true, false, true, true };
     const std::map<char, float> m = {{'a', 0}, {'b', 1}, {'c', 2}};
@@ -67,12 +74,12 @@ TEST(ZipIteratorTestSuite, ReadOnlyThreeWayZipTest) {
     const auto max = m.size();
     size_t idx = 0;
     for (const auto [x, y, z] : zipper) {
-        EXPECT_LT(idx, max);
-        EXPECT_EQ(*x, a.at(idx));
-        EXPECT_EQ(*y, b.at(idx));
-        EXPECT_EQ(z->second, m.at(z->first));
+        ASSERT_LT(idx, max);
+        ASSERT_EQ(*x, a.at(idx));
+        ASSERT_EQ(*y, b.at(idx));
+        ASSERT_EQ(z->second, m.at(z->first));
         idx++;
     }
 
-    EXPECT_EQ(idx, max);
+    ASSERT_EQ(idx, max);
 }
