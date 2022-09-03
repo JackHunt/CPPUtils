@@ -38,8 +38,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::ContainerTools::Tuple;
 
+class TupleToolsTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+        //
+    }
+};
 
-TEST(TupleToolsTestSuite, TupleForTest) {
+TEST_F(TupleToolsTestSuite, TupleForTest) {
     auto t = std::make_tuple(static_cast<int>(1), 
                              static_cast<float>(2.0), 
                              static_cast<long>(-3),
@@ -51,8 +57,8 @@ TEST(TupleToolsTestSuite, TupleForTest) {
         elem += a;
     });
 
-    EXPECT_EQ(std::get<0>(t), -4);
-    EXPECT_EQ(std::get<1>(t), -3.0);
-    EXPECT_EQ(std::get<2>(t), -8.0);
-    EXPECT_EQ(std::get<3>(t), -7.5);
+    ASSERT_EQ(std::get<0>(t), -4);
+    ASSERT_EQ(std::get<1>(t), -3.0);
+    ASSERT_EQ(std::get<2>(t), -8.0);
+    ASSERT_EQ(std::get<3>(t), -7.5);
 }
