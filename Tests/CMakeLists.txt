@@ -41,6 +41,12 @@ set(ITERATORS_TESTS
 )
 source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 
+# Linear Algebra
+set(LINEAR_ALGEBRA_TESTS
+  LinearAlgebra/BLAS.cpp
+)
+source_group(Tests/LinearAlgebra FILES ${LINEAR_ALGEBRA_TESTS})
+
 # Statistics
 set(STATISTICS_TESTS
   Statistics/SampleStatistics.cpp
@@ -66,6 +72,7 @@ set(ALL_TESTS
   ${DATA_STRUCTURES_TESTS}
   ${IO_TESTS}
   ${ITERATORS_TESTS}
+  ${LINEAR_ALGEBRA_TESTS}
   ${STATISTICS_TESTS}
   ${STRING_MANIPULATION_TESTS}
   ${TIMING_TESTS}

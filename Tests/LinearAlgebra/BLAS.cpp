@@ -36,6 +36,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::LinearAlgebra::BLAS;
 
-TEST(BLASTestSuite, GEMMTest) {
+class BLASTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+        //
+    }
+};
+
+TEST_F(BLASTestSuite, GEMMTest) {
     //
 }
