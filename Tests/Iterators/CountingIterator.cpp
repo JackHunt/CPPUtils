@@ -38,47 +38,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Iterators;
 
-
-template<typename T>
-void counterTestImpl(T a, T b) {
-    // Generate some expected values.
-    const T inc = a >= b ? -1 : 1;
-    std::vector<T> true_vals;
-    for (T i = a; i < b; i+=inc) {
-        true_vals.emplace_back(i);
+class CountingIteratorTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+        //
     }
 
-    // Compare with using Counter.
-    Counter<T> c(a, b);
-    size_t idx = 0;
-    for (auto iter = c.begin(); iter != c.end(); iter++) {
-        EXPECT_LT(idx, true_vals.size());
-        EXPECT_EQ(iter, true_vals.at(idx));
-        idx++;
+    template<typename T>
+    void counterTestImpl(T a, T b) {
+        // Generate some expected values.
+        const T inc = a >= b ? -1 : 1;
+        std::vector<T> true_vals;
+        for (T i = a; i < b; i+=inc) {
+            true_vals.emplace_back(i);
+        }
+
+        // Compare with using Counter.
+        Counter<T> c(a, b);
+        size_t idx = 0;
+        for (auto iter = c.begin(); iter != c.end(); iter++) {
+            ASSERT_LT(idx, true_vals.size());
+            ASSERT_EQ(iter, true_vals.at(idx));
+            idx++;
+        }
+
+        ASSERT_EQ(idx, true_vals.size());
     }
+};
 
-    EXPECT_EQ(idx, true_vals.size());
-}
-
-TEST(CountingIteratorTestSuite, SignedCounterTest) {
+TEST_F(CountingIteratorTestSuite, SignedCounterTest) {
     counterTestImpl<short>(-127, 127);
     counterTestImpl<int>(-1270, 1270);
     counterTestImpl<long>(-1270, 1270);
 }
 
-TEST(CountingIteratorTestSuite, SignedCounterReverseTest) {
+TEST_F(CountingIteratorTestSuite, SignedCounterReverseTest) {
     counterTestImpl<short>(127, -127);
     counterTestImpl<int>(1270, -1270);
     counterTestImpl<long>(1270, -1270);
 }
 
-TEST(CountingIteratorTestSuite, UnsignedCounterTest) {
+TEST_F(CountingIteratorTestSuite, UnsignedCounterTest) {
     counterTestImpl<unsigned short>(0, 127);
     counterTestImpl<unsigned int>(0, 1270);
     counterTestImpl<unsigned long>(0, 1270);
 }
 
-TEST(CountingIteratorTestSuite, UnsignedCounterReverseTest) {
+TEST_F(CountingIteratorTestSuite, UnsignedCounterReverseTest) {
     counterTestImpl<unsigned short>(127, 0);
     counterTestImpl<unsigned int>(1270, 0);
     counterTestImpl<unsigned long>(1270, 0);
