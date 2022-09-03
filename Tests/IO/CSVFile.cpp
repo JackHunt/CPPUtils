@@ -39,16 +39,41 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::IO;
 
-template<typename T>
-static void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
-    EXPECT_EQ(a.size(), b.size());
-
-    for (size_t i = 0; i < a.size(); i++) {
-        EXPECT_EQ(a.at(i), b.at(i));
+class CSVTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+        //
     }
-}
 
-TEST(CSVTestSuite, BasicCSVWriteReadTest) {
+    template<typename T>
+    void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
+        EXPECT_EQ(a.size(), b.size());
+
+        for (size_t i = 0; i < a.size(); i++) {
+            EXPECT_EQ(a.at(i), b.at(i));
+        }
+    }
+
+    template<typename T, typename U>
+    void typeParseTestImpl() {
+        using CSV = CSVFile<T, U>;
+        using V = typename CSV::ElementType;
+
+        constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
+        const std::vector<V> types = {
+            V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING,
+            V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING
+        };
+
+        CSV csv;
+        csv.appendRow(vals);
+
+        const auto types2 = csv.getDataTypes();
+        verifyEqual(types, types2);
+    }
+};
+
+TEST_F(CSVTestSuite, BasicCSVWriteReadTest) {
     // Test data.
     constexpr auto a = "3.14, True, 2, 6.28, abc";
     constexpr auto b = "6.28, False, -2, 3.14, cba";
@@ -87,25 +112,7 @@ TEST(CSVTestSuite, BasicCSVWriteReadTest) {
     EXPECT_TRUE(std::filesystem::remove(fname));
 }
 
-template<typename T, typename U>
-static void typeParseTestImpl() {
-    using CSV = CSVFile<T, U>;
-    using V = typename CSV::ElementType;
-
-    constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
-    const std::vector<V> types = {
-        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING,
-        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING
-    };
-
-    CSV csv;
-    csv.appendRow(vals);
-
-    const auto types2 = csv.getDataTypes();
-    verifyEqual(types, types2);
-}
-
-TEST(CSVTestSuite, CSVTypeParseTest) {
+TEST_F(CSVTestSuite, CSVTypeParseTest) {
     typeParseTestImpl<float, short>();
     typeParseTestImpl<float, int>();
     typeParseTestImpl<float, long>();
