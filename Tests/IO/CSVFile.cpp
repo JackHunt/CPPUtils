@@ -47,10 +47,10 @@ class CSVTestSuite : public ::testing::Test {
 
     template<typename T>
     void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
-        EXPECT_EQ(a.size(), b.size());
+        ASSERT_EQ(a.size(), b.size());
 
         for (size_t i = 0; i < a.size(); i++) {
-            EXPECT_EQ(a.at(i), b.at(i));
+            ASSERT_EQ(a.at(i), b.at(i));
         }
     }
 
@@ -101,15 +101,15 @@ TEST_F(CSVTestSuite, BasicCSVWriteReadTest) {
     const auto rows = csv.getData();
     const auto rows2 = csv2.getData();
 
-    EXPECT_EQ(rows.size(), rows2.size());
-    EXPECT_EQ(csv.getNumRows(), csv2.getNumRows());
+    ASSERT_EQ(rows.size(), rows2.size());
+    ASSERT_EQ(csv.getNumRows(), csv2.getNumRows());
 
     for (size_t i = 0; i < rows.size(); i++) {
         verifyEqual(rows.at(i), rows2.at(i));
     }
 
     // Clear up.
-    EXPECT_TRUE(std::filesystem::remove(fname));
+    ASSERT_TRUE(std::filesystem::remove(fname));
 }
 
 TEST_F(CSVTestSuite, CSVTypeParseTest) {
