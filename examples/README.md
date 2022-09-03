@@ -1,0 +1,2 @@
+# CPPUtils Examples
+These files are just exmaples/tests that I have written when developing the algorithms/utils. There are no guarantees that these make sense, are well written or even work. They will likely be deleted at some point soon.
