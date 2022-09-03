@@ -38,6 +38,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Statistics;
 
-TEST(SampleStatisticsTestSuite, SampleMeanTest) {
+class SampleStatisticsTestSuite : public ::testing::Test {
+ protected:
+    void SetUp() override {
+        //
+    }
+};
+
+TEST_F(SampleStatisticsTestSuite, SampleMeanTest) {
     //
 }
