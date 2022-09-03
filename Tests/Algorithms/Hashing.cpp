@@ -41,42 +41,41 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace CPPUtils::Algorithms;
 
 class CantorHashingTestSuite : public ::testing::Test {
- public:
-    static constexpr std::array<std::tuple<int, int, int>, 16> cases = {
-        {
-            {0, 0, 0},
-            {0, 1, 2},
-            {0, 2, 5},
-            {0, 3, 9},
-            {1, 0, 1},
-            {1, 1, 4},
-            {1, 2, 8},
-            {1, 3, 13},
-            {2, 0, 3},
-            {2, 1, 7},
-            {2, 2, 12},
-            {2, 3, 18},
-            {3, 0, 6},
-            {3, 1, 11},
-            {3, 2, 17},
-            {3, 3, 24}
-        }
-    };
-
  protected:
-  void SetUp() override {
-    //
-  }
+    std::array<std::tuple<int, int, int>, 16> cases;
+
+    void SetUp() override {
+        cases = {
+            {
+                {0, 0, 0},
+                {0, 1, 2},
+                {0, 2, 5},
+                {0, 3, 9},
+                {1, 0, 1},
+                {1, 1, 4},
+                {1, 2, 8},
+                {1, 3, 13},
+                {2, 0, 3},
+                {2, 1, 7},
+                {2, 2, 12},
+                {2, 3, 18},
+                {3, 0, 6},
+                {3, 1, 11},
+                {3, 2, 17},
+                {3, 3, 24}
+            }
+        };
+    }
 };
 
-TEST(CantorHashingTestSuite, CantorHashTest) {
-    for (auto &[a, b, c] : CantorHashingTestSuite::cases) {
+TEST_F(CantorHashingTestSuite, CantorHashTest) {
+    for (auto &[a, b, c] : cases) {
         ASSERT_EQ(cantorHash(a, b), c);
     }
 }
 
-TEST(HashingTestSuite, InverseCantorHashTest) {
-    for (auto &[a, b, c] : CantorHashingTestSuite::cases) {
+TEST_F(CantorHashingTestSuite, InverseCantorHashTest) {
+    for (auto &[a, b, c] : cases) {
         ASSERT_EQ(inverseCantorHash(c), std::make_pair(a, b));
     }
 }
