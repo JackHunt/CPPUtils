@@ -30,9 +30,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <array>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -40,42 +40,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Algorithms;
 
-class CantorHashingTestSuite : public ::testing::Test {
- protected:
-    std::array<std::tuple<int, int, int>, 16> cases;
+using Case = std::tuple<int, int, int>;
 
+class CantorHashingTestSuite : public testing::TestWithParam<Case> {
+ protected:
     void SetUp() override {
-        cases = {
-            {
-                {0, 0, 0},
-                {0, 1, 2},
-                {0, 2, 5},
-                {0, 3, 9},
-                {1, 0, 1},
-                {1, 1, 4},
-                {1, 2, 8},
-                {1, 3, 13},
-                {2, 0, 3},
-                {2, 1, 7},
-                {2, 2, 12},
-                {2, 3, 18},
-                {3, 0, 6},
-                {3, 1, 11},
-                {3, 2, 17},
-                {3, 3, 24}
-            }
-        };
+        //
     }
 };
 
-TEST_F(CantorHashingTestSuite, CantorHashTest) {
-    for (auto &[a, b, c] : cases) {
-        ASSERT_EQ(cantorHash(a, b), c);
-    }
+TEST_P(CantorHashingTestSuite, CantorHashTest) {
+    int a, b, c;
+    std::tie(a, b, c) = GetParam();
+    ASSERT_EQ(cantorHash(a, b), c);
 }
 
-TEST_F(CantorHashingTestSuite, InverseCantorHashTest) {
-    for (auto &[a, b, c] : cases) {
-        ASSERT_EQ(inverseCantorHash(c), std::make_pair(a, b));
-    }
+TEST_P(CantorHashingTestSuite, InverseCantorHashTest) {
+    int a, b, c;
+    std::tie(a, b, c) = GetParam();
+    ASSERT_EQ(inverseCantorHash(c), std::make_pair(a, b));
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    CantorTestCases,
+    CantorHashingTestSuite,
+    testing::Values(
+        Case(0, 0, 0),
+        Case(0, 1, 2),
+        Case(0, 2, 5),
+        Case(0, 3, 9),
+        Case(1, 0, 1),
+        Case(1, 1, 4),
+        Case(1, 2, 8),
+        Case(1, 3, 13),
+        Case(2, 0, 3),
+        Case(2, 1, 7),
+        Case(2, 2, 12),
+        Case(2, 3, 18),
+        Case(3, 0, 6),
+        Case(3, 1, 11),
+        Case(3, 2, 17),
+        Case(3, 3, 24)));
