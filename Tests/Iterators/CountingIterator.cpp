@@ -38,54 +38,63 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::Iterators;
 
+template<typename T>
 class CountingIteratorTestSuite : public ::testing::Test {
  protected:
     void SetUp() override {
         //
     }
+};
 
-    template<typename T>
-    void counterTestImpl(T a, T b) {
-        // Generate some expected values.
-        const T inc = a >= b ? -1 : 1;
-        std::vector<T> true_vals;
-        for (T i = a; i < b; i+=inc) {
-            true_vals.emplace_back(i);
-        }
+template <typename T, T A, T B>
+struct Case {
+    using NumberType = T;
 
-        // Compare with using Counter.
-        Counter<T> c(a, b);
-        size_t idx = 0;
-        for (auto iter = c.begin(); iter != c.end(); iter++) {
-            ASSERT_LT(idx, true_vals.size());
-            ASSERT_EQ(iter, true_vals.at(idx));
-            idx++;
-        }
+    static constexpr T Min() {
+        return A;
+    }
 
-        ASSERT_EQ(idx, true_vals.size());
+    static constexpr T Max() {
+        return B;
     }
 };
 
-TEST_F(CountingIteratorTestSuite, SignedCounterTest) {
-    counterTestImpl<short>(-127, 127);
-    counterTestImpl<int>(-1270, 1270);
-    counterTestImpl<long>(-1270, 1270);
-}
+using TestCases = ::testing::Types<
+    Case<short, -127, 127>,
+    Case<int, -1270, 1270>,
+    Case<long, -1270, 1270>,
+    Case<short, 127, -127>,
+    Case<int, 1270, -1270>,
+    Case<long, 1270, -1270>,
+    Case<unsigned short, 0, 127>,
+    Case<unsigned int, 0, 1270>,
+    Case<unsigned long, 0, 1270>,
+    Case<unsigned short, 127, 0>,
+    Case<unsigned int, 1270, 0>,
+    Case<unsigned long, 1270, 0>>;
 
-TEST_F(CountingIteratorTestSuite, SignedCounterReverseTest) {
-    counterTestImpl<short>(127, -127);
-    counterTestImpl<int>(1270, -1270);
-    counterTestImpl<long>(1270, -1270);
-}
+TYPED_TEST_SUITE(CountingIteratorTestSuite, TestCases);
 
-TEST_F(CountingIteratorTestSuite, UnsignedCounterTest) {
-    counterTestImpl<unsigned short>(0, 127);
-    counterTestImpl<unsigned int>(0, 1270);
-    counterTestImpl<unsigned long>(0, 1270);
-}
+TYPED_TEST(CountingIteratorTestSuite, CountingTest) {
+    using IntType = TypeParam::NumberType;
+    constexpr IntType a = TypeParam::Min();
+    constexpr IntType b = TypeParam::Max();
 
-TEST_F(CountingIteratorTestSuite, UnsignedCounterReverseTest) {
-    counterTestImpl<unsigned short>(127, 0);
-    counterTestImpl<unsigned int>(1270, 0);
-    counterTestImpl<unsigned long>(1270, 0);
+    // Generate some expected values.
+    const IntType inc = a >= b ? -1 : 1;
+    std::vector<IntType> true_vals;
+    for (IntType i = a; i < b; i += inc) {
+        true_vals.emplace_back(i);
+    }
+
+    // Compare with using Counter.
+    Counter<IntType> c(a, b);
+    size_t idx = 0;
+    for (auto iter = c.begin(); iter != c.end(); iter++) {
+        ASSERT_LT(idx, true_vals.size());
+        ASSERT_EQ(iter, true_vals.at(idx));
+        idx++;
+    }
+
+    ASSERT_EQ(idx, true_vals.size());
 }
