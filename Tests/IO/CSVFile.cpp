@@ -39,47 +39,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::IO;
 
+template <typename T, typename U>
+struct CSVTypes {
+    using FloatType = T;
+    using IntegerType = U;
+};
+
+template<typename T>
 class CSVTestSuite : public ::testing::Test {
+ public:
+    using CSVTypes = T;
+
  protected:
     void SetUp() override {
         //
     }
 
-    template<typename T>
-    void verifyEqual(const std::vector<T>& a, const std::vector<T>& b) {
+    template<typename U>
+    static void verifyEqual(const std::vector<U>& a, const std::vector<U>& b) {
         ASSERT_EQ(a.size(), b.size());
 
         for (size_t i = 0; i < a.size(); i++) {
             ASSERT_EQ(a.at(i), b.at(i));
         }
     }
-
-    template<typename T, typename U>
-    void typeParseTestImpl() {
-        using CSV = CSVFile<T, U>;
-        using V = typename CSV::ElementType;
-
-        constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
-        const std::vector<V> types = {
-            V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING,
-            V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING
-        };
-
-        CSV csv;
-        csv.appendRow(vals);
-
-        const auto types2 = csv.getDataTypes();
-        verifyEqual(types, types2);
-    }
 };
 
-TEST_F(CSVTestSuite, BasicCSVWriteReadTest) {
+using CSVTypeDefinitions = ::testing::Types<
+    CSVTypes<float, short>,
+    CSVTypes<float, int>,
+    CSVTypes<float, long>,
+    CSVTypes<double, short>,
+    CSVTypes<double, int>,
+    CSVTypes<double, long>>;
+
+TYPED_TEST_SUITE(CSVTestSuite, CSVTypeDefinitions);
+
+TYPED_TEST(CSVTestSuite, BasicCSVWriteReadTest) {
+    using CSV = CSVFile<typename TypeParam::FloatType,
+                        typename TypeParam::IntegerType>;
+
     // Test data.
     constexpr auto a = "3.14, True, 2, 6.28, abc";
     constexpr auto b = "6.28, False, -2, 3.14, cba";
 
     // Create a CSV file and append some data.
-    CSVFile<float, int> csv;
+    CSV csv;
     csv.appendRow(a);
     csv.appendRow(b);
 
@@ -95,7 +100,7 @@ TEST_F(CSVTestSuite, BasicCSVWriteReadTest) {
     csv2.readFromDisk(fname.string());
 
     // Verify that the types match.
-    verifyEqual(csv.getDataTypes(), csv2.getDataTypes());
+    this->verifyEqual(csv.getDataTypes(), csv2.getDataTypes());
 
     // Verify the rows.
     const auto rows = csv.getData();
@@ -105,19 +110,28 @@ TEST_F(CSVTestSuite, BasicCSVWriteReadTest) {
     ASSERT_EQ(csv.getNumRows(), csv2.getNumRows());
 
     for (size_t i = 0; i < rows.size(); i++) {
-        verifyEqual(rows.at(i), rows2.at(i));
+        this->verifyEqual(rows.at(i), rows2.at(i));
     }
 
     // Clear up.
     ASSERT_TRUE(std::filesystem::remove(fname));
 }
 
-TEST_F(CSVTestSuite, CSVTypeParseTest) {
-    typeParseTestImpl<float, short>();
-    typeParseTestImpl<float, int>();
-    typeParseTestImpl<float, long>();
-    
-    typeParseTestImpl<double, short>();
-    typeParseTestImpl<double, int>();
-    typeParseTestImpl<double, long>();
+TYPED_TEST(CSVTestSuite, CSVTypeParseTest) {
+    using CSV = CSVFile<typename TypeParam::FloatType,
+                        typename TypeParam::IntegerType>;
+
+    using V = typename CSV::ElementType;
+
+    constexpr auto vals = "3.14, True, 2, 6.28, abc, 6.28, False, -2, 3.14, cba";
+    const std::vector<V> types = {
+        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING,
+        V::REAL, V::BOOLEAN, V::INTEGER, V::REAL, V::STRING
+    };
+
+    CSV csv;
+    csv.appendRow(vals);
+
+    const auto types2 = csv.getDataTypes();
+    this->verifyEqual(types, types2);
 }
