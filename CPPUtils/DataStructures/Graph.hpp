@@ -88,6 +88,8 @@ namespace CPPUtils::DataStructures::Graphs {
         }
 
     public:
+        using EdgeType = OutwardEdge<T, U>;
+
         Graph() :
             directed(false) {
             //
@@ -175,6 +177,10 @@ namespace CPPUtils::DataStructures::Graphs {
                                return a.first;
                            });
             return vertices;
+        }
+
+        const bool isDirected() const {
+            return directed;
         }
     };
 

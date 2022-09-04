@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2021 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,219 +39,190 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::DataStructures;
 
+template <typename T>
 class GraphTestSuite : public ::testing::Test {
+ public:
+    using GraphType = T;
+
  protected:
     void SetUp() override {
         //
     }
-
-    template<typename T>
-    void EmptyGraphTestImpl() {
-        T G;
-        ASSERT_EQ(G.getVertexCardinality(), 0);
-        ASSERT_TRUE(G.getVertices().empty());
-        ASSERT_TRUE(G.getAdjacencyList(0).empty());
-    }
-
-    template<typename T>
-    void GraphAddVerticesTestImpl() {
-        T G;
-
-        constexpr int V[3] = { 0, 1, 2 };
-        for (const auto v : V) {
-            G.addVertex(v);
-        }
-
-        ASSERT_EQ(G.getVertexCardinality(), 3);
-
-        for (const auto v : V) {
-            ASSERT_TRUE(G.vertexExists(v));
-        }
-
-        const auto G_V = G.getVertices();
-        for (const auto v : V) {
-            ASSERT_NE(std::find(G_V.begin(), G_V.end(), v), G_V.end());
-        }
-    }
-
-    template<typename T>
-    void GraphRemoveVerticesTestImpl() {
-        T G;
-
-        constexpr int V[3] = { 0, 1, 2 };
-        for (const auto v : V) {
-            G.addVertex(v);
-        }
-
-        G.removeVertex(0);
-        G.removeVertex(2);
-
-        const auto G_V = G.getVertices();
-        ASSERT_EQ(G_V.size(), 1);
-        ASSERT_EQ(G_V.at(0), 1);
-    }
 };
 
-TEST_F(GraphTestSuite, OutwardEdgeTest) {
-    Graphs::OutwardEdge<int, int> edge(0, 1);
+using GraphTypes = ::testing::Types<
+    Graphs::Graph<int>,
+    Graphs::Graph<float>,
+    Graphs::Graph<double>,
+    Graphs::DirectedGraph<int>,
+    Graphs::DirectedGraph<float>,
+    Graphs::DirectedGraph<double>>;
+
+TYPED_TEST_SUITE(GraphTestSuite, GraphTypes);
+
+TYPED_TEST(GraphTestSuite, OutwardEdgeTest) {
+    typename TypeParam::EdgeType edge(0, 1);
     ASSERT_EQ(edge.getVertex(), 0);
     ASSERT_EQ(edge.getWeight(), 1);
 }
 
-TEST_F(GraphTestSuite, EmptyGraphTest) {
-    EmptyGraphTestImpl<Graphs::Graph<int>>();
-    EmptyGraphTestImpl<Graphs::Graph<float>>();
-    EmptyGraphTestImpl<Graphs::Graph<double>>();
+TYPED_TEST(GraphTestSuite, EmptyGraphTest) {
+    TypeParam G;
+    ASSERT_EQ(G.getVertexCardinality(), 0);
+    ASSERT_TRUE(G.getVertices().empty());
+    ASSERT_TRUE(G.getAdjacencyList(0).empty());
 }
 
-TEST_F(GraphTestSuite, EmptyDirectedGraphTest) {
-    EmptyGraphTestImpl<Graphs::Graph<int>>();
-    EmptyGraphTestImpl<Graphs::Graph<float>>();
-    EmptyGraphTestImpl<Graphs::Graph<double>>();
+TYPED_TEST(GraphTestSuite, GraphAddVerticesTest) {
+    TypeParam G;
+
+    constexpr int V[3] = { 0, 1, 2 };
+    for (const auto v : V) {
+        G.addVertex(v);
+    }
+
+    ASSERT_EQ(G.getVertexCardinality(), 3);
+
+    for (const auto v : V) {
+        ASSERT_TRUE(G.vertexExists(v));
+    }
+
+    const auto G_V = G.getVertices();
+    for (const auto v : V) {
+        ASSERT_NE(std::find(G_V.begin(), G_V.end(), v), G_V.end());
+    }
 }
 
-TEST_F(GraphTestSuite, GraphAddVerticesTest) {
-    GraphAddVerticesTestImpl<Graphs::Graph<int>>();
-    GraphAddVerticesTestImpl<Graphs::Graph<float>>();
-    GraphAddVerticesTestImpl<Graphs::Graph<double>>();
+TYPED_TEST(GraphTestSuite, GraphRemoveVerticesTest) {
+    TypeParam G;
+
+    constexpr int V[3] = { 0, 1, 2 };
+    for (const auto v : V) {
+        G.addVertex(v);
+    }
+
+    G.removeVertex(0);
+    G.removeVertex(2);
+
+    const auto G_V = G.getVertices();
+    ASSERT_EQ(G_V.size(), 1);
+    ASSERT_EQ(G_V.at(0), 1);
 }
 
-TEST_F(GraphTestSuite, DirectedGraphAddVerticesTest) {
-    GraphAddVerticesTestImpl<Graphs::DirectedGraph<int>>();
-    GraphAddVerticesTestImpl<Graphs::DirectedGraph<float>>();
-    GraphAddVerticesTestImpl<Graphs::DirectedGraph<double>>();
+TYPED_TEST(GraphTestSuite, GraphAddEdgesTest) {
+    TypeParam G;
+
+    if (G.isDirected()) {
+        // Setup the graph.
+        G.addEdge(0, 1, 0.5);
+        G.addEdge(1, 0, -0.5);
+
+        G.addEdge(2, 0, 0.1);
+        G.addEdge(2, 1, -0.1);
+
+        // Check each vertices connections.
+        const auto& adj_0 = G.getAdjacencyList(0);
+        ASSERT_EQ(adj_0.size(), 1);
+        ASSERT_EQ(adj_0.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
+
+        const auto& adj_1 = G.getAdjacencyList(1);
+        ASSERT_EQ(adj_1.size(), 1);
+        ASSERT_EQ(adj_1.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_1.at(0).getWeight(), -0.5);
+
+        const auto& adj_2 = G.getAdjacencyList(2);
+        ASSERT_EQ(adj_2.size(), 2);
+        ASSERT_EQ(adj_2.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_2.at(0).getWeight(), 0.1);
+        ASSERT_EQ(adj_2.at(1).getVertex(), 1);
+        ASSERT_EQ(adj_2.at(1).getWeight(), -0.1);
+    } else {
+        // Setup the graph.
+        G.addEdge(0, 1, 0.5);
+
+        G.addEdge(2, 0, 0.1);
+        G.addEdge(2, 1, -0.1);
+
+        // Check each vertices connections.
+        const auto& adj_0 = G.getAdjacencyList(0);
+        ASSERT_EQ(adj_0.size(), 2);
+        ASSERT_EQ(adj_0.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
+        ASSERT_EQ(adj_0.at(1).getVertex(), 2);
+        ASSERT_EQ(adj_0.at(1).getWeight(), 0.1);
+
+        const auto& adj_1 = G.getAdjacencyList(1);
+        ASSERT_EQ(adj_1.size(), 2);
+        ASSERT_EQ(adj_1.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_1.at(0).getWeight(), 0.5);
+        ASSERT_EQ(adj_1.at(1).getVertex(), 2);
+        ASSERT_EQ(adj_1.at(1).getWeight(), -0.1);
+
+        const auto& adj_2 = G.getAdjacencyList(2);
+        ASSERT_EQ(adj_2.size(), 2);
+        ASSERT_EQ(adj_2.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_2.at(0).getWeight(), 0.1);
+        ASSERT_EQ(adj_2.at(1).getVertex(), 1);
+        ASSERT_EQ(adj_2.at(1).getWeight(), -0.1);
+    }
 }
 
-TEST_F(GraphTestSuite, GraphRemoveVerticesTest) {
-    GraphRemoveVerticesTestImpl<Graphs::Graph<int>>();
-    GraphRemoveVerticesTestImpl<Graphs::Graph<float>>();
-    GraphRemoveVerticesTestImpl<Graphs::Graph<double>>();
-}
+TYPED_TEST(GraphTestSuite, GraphRemoveEdgesTest) {
+    TypeParam G;
 
-TEST_F(GraphTestSuite, DirectedGraphRemoveVerticesTest) {
-    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<int>>();
-    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<float>>();
-    GraphRemoveVerticesTestImpl<Graphs::DirectedGraph<double>>();
-}
+    if (G.isDirected()) {
+        // Setup the graph.
+        G.addEdge(0, 1, 0.5);
+        G.addEdge(1, 0, -0.5);
 
-TEST_F(GraphTestSuite, GraphAddEdgesTest) {
-    Graphs::Graph<int> G;
+        G.addEdge(2, 0, 0.1);
+        G.addEdge(2, 1, -0.1);
 
-    // Setup the graph.
-    G.addEdge(0, 1, 0.5);
+        // Remove an edge.
+        G.removeEdge(2, 0);
 
-    G.addEdge(2, 0, 0.1);
-    G.addEdge(2, 1, -0.1);
+        // Check each vertices connections.
+        const auto& adj_0 = G.getAdjacencyList(0);
+        ASSERT_EQ(adj_0.size(), 1);
+        ASSERT_EQ(adj_0.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
 
-    // Check each vertices connections.
-    const auto& adj_0 = G.getAdjacencyList(0);
-    ASSERT_EQ(adj_0.size(), 2);
-    ASSERT_EQ(adj_0.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
-    ASSERT_EQ(adj_0.at(1).getVertex(), 2);
-    ASSERT_EQ(adj_0.at(1).getWeight(), 0.1);
+        const auto& adj_1 = G.getAdjacencyList(1);
+        ASSERT_EQ(adj_1.size(), 1);
+        ASSERT_EQ(adj_1.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_1.at(0).getWeight(), -0.5);
 
-    const auto& adj_1 = G.getAdjacencyList(1);
-    ASSERT_EQ(adj_1.size(), 2);
-    ASSERT_EQ(adj_1.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_1.at(0).getWeight(), 0.5);
-    ASSERT_EQ(adj_1.at(1).getVertex(), 2);
-    ASSERT_EQ(adj_1.at(1).getWeight(), -0.1);
+        const auto& adj_2 = G.getAdjacencyList(2);
+        ASSERT_EQ(adj_2.size(), 1);
+        ASSERT_EQ(adj_2.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_2.at(0).getWeight(), -0.1);
+    } else {
+        // Setup the graph.
+        G.addEdge(0, 1, 0.5);
 
-    const auto& adj_2 = G.getAdjacencyList(2);
-    ASSERT_EQ(adj_2.size(), 2);
-    ASSERT_EQ(adj_2.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_2.at(0).getWeight(), 0.1);
-    ASSERT_EQ(adj_2.at(1).getVertex(), 1);
-    ASSERT_EQ(adj_2.at(1).getWeight(), -0.1);
-}
+        G.addEdge(2, 0, 0.1);
+        G.addEdge(2, 1, -0.1);
 
-TEST_F(GraphTestSuite, DirectedGraphAddEdgesTest) {
-    Graphs::DirectedGraph<int> G;
+        // Remove an edge.
+        G.removeEdge(2, 0);
 
-    // Setup the graph.
-    G.addEdge(0, 1, 0.5);
-    G.addEdge(1, 0, -0.5);
+        // Check each vertices connections.
+        const auto& adj_0 = G.getAdjacencyList(0);
+        ASSERT_EQ(adj_0.size(), 1);
+        ASSERT_EQ(adj_0.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
 
-    G.addEdge(2, 0, 0.1);
-    G.addEdge(2, 1, -0.1);
+        const auto& adj_1 = G.getAdjacencyList(1);
+        ASSERT_EQ(adj_1.size(), 2);
+        ASSERT_EQ(adj_1.at(0).getVertex(), 0);
+        ASSERT_EQ(adj_1.at(0).getWeight(), 0.5);
+        ASSERT_EQ(adj_1.at(1).getVertex(), 2);
+        ASSERT_EQ(adj_1.at(1).getWeight(), -0.1);
 
-    // Check each vertices connections.
-    const auto& adj_0 = G.getAdjacencyList(0);
-    ASSERT_EQ(adj_0.size(), 1);
-    ASSERT_EQ(adj_0.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
-
-    const auto& adj_1 = G.getAdjacencyList(1);
-    ASSERT_EQ(adj_1.size(), 1);
-    ASSERT_EQ(adj_1.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_1.at(0).getWeight(), -0.5);
-
-    const auto& adj_2 = G.getAdjacencyList(2);
-    ASSERT_EQ(adj_2.size(), 2);
-    ASSERT_EQ(adj_2.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_2.at(0).getWeight(), 0.1);
-    ASSERT_EQ(adj_2.at(1).getVertex(), 1);
-    ASSERT_EQ(adj_2.at(1).getWeight(), -0.1);
-}
-
-TEST_F(GraphTestSuite, GraphRemoveEdgesTest) {
-    Graphs::Graph<int> G;
-
-    // Setup the graph.
-    G.addEdge(0, 1, 0.5);
-
-    G.addEdge(2, 0, 0.1);
-    G.addEdge(2, 1, -0.1);
-
-    // Remove an edge.
-    G.removeEdge(2, 0);
-
-    // Check each vertices connections.
-    const auto& adj_0 = G.getAdjacencyList(0);
-    ASSERT_EQ(adj_0.size(), 1);
-    ASSERT_EQ(adj_0.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
-
-    const auto& adj_1 = G.getAdjacencyList(1);
-    ASSERT_EQ(adj_1.size(), 2);
-    ASSERT_EQ(adj_1.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_1.at(0).getWeight(), 0.5);
-    ASSERT_EQ(adj_1.at(1).getVertex(), 2);
-    ASSERT_EQ(adj_1.at(1).getWeight(), -0.1);
-
-    const auto& adj_2 = G.getAdjacencyList(2);
-    ASSERT_EQ(adj_2.size(), 1);
-    ASSERT_EQ(adj_2.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_2.at(0).getWeight(), -0.1);
-}
-
-TEST_F(GraphTestSuite, DirectedGraphRemoveEdgesTest) {
-    Graphs::DirectedGraph<int> G;
-
-    // Setup the graph.
-    G.addEdge(0, 1, 0.5);
-    G.addEdge(1, 0, -0.5);
-
-    G.addEdge(2, 0, 0.1);
-    G.addEdge(2, 1, -0.1);
-
-    // Remove an edge.
-    G.removeEdge(2, 0);
-
-    // Check each vertices connections.
-    const auto& adj_0 = G.getAdjacencyList(0);
-    ASSERT_EQ(adj_0.size(), 1);
-    ASSERT_EQ(adj_0.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_0.at(0).getWeight(), 0.5);
-
-    const auto& adj_1 = G.getAdjacencyList(1);
-    ASSERT_EQ(adj_1.size(), 1);
-    ASSERT_EQ(adj_1.at(0).getVertex(), 0);
-    ASSERT_EQ(adj_1.at(0).getWeight(), -0.5);
-
-    const auto& adj_2 = G.getAdjacencyList(2);
-    ASSERT_EQ(adj_2.size(), 1);
-    ASSERT_EQ(adj_2.at(0).getVertex(), 1);
-    ASSERT_EQ(adj_2.at(0).getWeight(), -0.1);
+        const auto& adj_2 = G.getAdjacencyList(2);
+        ASSERT_EQ(adj_2.size(), 1);
+        ASSERT_EQ(adj_2.at(0).getVertex(), 1);
+        ASSERT_EQ(adj_2.at(0).getWeight(), -0.1);
+    }
 }
