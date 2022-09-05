@@ -49,51 +49,6 @@ namespace CPPUtils::LinearAlgebra {
             CPU,
             CUDA
         };
-
-        template<typename T, DeviceType SD, DeviceType TD>
-        inline Matrix<T, TD>& copy(const Matrix<T, SD>& M) {
-            throw std::logic_error("Unknown device type.")
-        }
-
-        template<typename T, DeviceType TD>
-        inline Matrix<T, TD> copy(const Matrix<T, CPU>& M) {
-            if constexpr (TD == CPU) {
-                return Matrix<T, CPU>(M);
-            }
-
-            if constexpr (TD == CUDA) {
-                //
-            }
-
-            throw std::runtime_error("Unknown device copy type")
-        }
-
-        template<typename T, DeviceType TD>
-        inline Matrix<T, TD> copy(const Matrix<T, CUDA>& M) {
-            if constexpr (TD == CUDA) {
-                return Matrix<T, CUDA>(M);
-            }
-
-            if constexpr (TD == CPU) {
-                //
-            }
-
-            throw std::runtime_error("Unknown device copy type")
-        }
-
-        template<typename T, DeviceType D>
-        inline Matrix<T, D> ones(size_t rows, size_t columns) {
-            Matrix<T, D> A(rows, columns);
-            A->setAllToValue(1.0);
-            return A;
-        }
-
-        template<typename T, DeviceType D>
-        inline Matrix<T, D> zeros(size_t rows, size_t columns) {
-            Matrix<T, D> A(rows, columns);
-            A->setAllToValue(0.0);
-            return A;
-        }
     }
 
     template<typename T = float, Util::DeviceType D = Util::DeviceType::CPU>
@@ -103,17 +58,17 @@ namespace CPPUtils::LinearAlgebra {
 
         const size_t rows;
         const size_t columns;
-        bool is_transposed;
-        bool is_triangular;
+        bool transposed;
+        bool triangular;
 
     public:
-        virtual Matrix(size_t rows, size_t columns) :
+        Matrix(size_t rows, size_t columns) :
             rows(rows),
             columns(columns),
-            is_transpose(false),
-            is_triangular(false) {
+            transposed(false),
+            triangular(false) {
             // Allocate the buffer based on the device.
-            const auto N = rows() * columns();
+            const auto N = num_rows() * num_columns();
             switch (D) {
                 case Util::DeviceType::CPU: {
                     elements = std::make_shared<CPUBuffer<T>>(N);
@@ -161,25 +116,20 @@ namespace CPPUtils::LinearAlgebra {
             //
         }
 
-
-        void t() {
-            is_transposed = !is_transposed;
-        }
-
-        size_t rows() const {
+        size_t num_rows() const {
             return rows;
         }
 
-        size_t columns() const {
+        size_t num_columns() const {
             return columns;
         }
 
         bool is_transposed() const {
-            return is_transposed;
+            return transposed;
         }
 
         bool is_triangular() const {
-            return is_triangular;
+            return triangular;
         }
 
         void setAllToValue(T val) {
@@ -278,7 +228,7 @@ namespace CPPUtils::LinearAlgebra {
         Matrix<T, D> A(lhs);
 
         const auto N = lhs.rows() * lhs.columns();
-        BLAS::scal(A.data(), BLAS::SCALCallConfig(rhs, N))
+        BLAS::scal(A.data(), BLAS::SCALCallConfig(rhs, N));
 
         return A;
     }
@@ -325,6 +275,53 @@ namespace CPPUtils::LinearAlgebra {
     Matrix<T, D>& operator-=(Matrix<T, D>& lhs, T rhs) {
         const auto A = lhs - rhs;
         return std::move(A);
+    }
+
+    namespace Util {
+        template<typename T, DeviceType SD, DeviceType TD>
+        inline Matrix<T, TD>& copy(const Matrix<T, SD>& M) {
+            throw std::logic_error("Unknown device type.");
+        }
+
+        template<typename T, DeviceType TD>
+        inline Matrix<T, TD> copy(const Matrix<T, CPU>& M) {
+            if constexpr (TD == CPU) {
+                return Matrix<T, CPU>(M);
+            }
+
+            if constexpr (TD == CUDA) {
+                //
+            }
+
+            throw std::runtime_error("Unknown device copy type");
+        }
+
+        template<typename T, DeviceType TD>
+        inline Matrix<T, TD> copy(const Matrix<T, CUDA>& M) {
+            if constexpr (TD == CUDA) {
+                return Matrix<T, CUDA>(M);
+            }
+
+            if constexpr (TD == CPU) {
+                //
+            }
+
+            throw std::runtime_error("Unknown device copy type");
+        }
+
+        template<typename T, DeviceType D>
+        inline Matrix<T, D> ones(size_t rows, size_t columns) {
+            Matrix<T, D> A(rows, columns);
+            A->setAllToValue(1.0);
+            return A;
+        }
+
+        template<typename T, DeviceType D>
+        inline Matrix<T, D> zeros(size_t rows, size_t columns) {
+            Matrix<T, D> A(rows, columns);
+            A->setAllToValue(0.0);
+            return A;
+        }
     }
 }
 

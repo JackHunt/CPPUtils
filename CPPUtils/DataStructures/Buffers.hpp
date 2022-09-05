@@ -46,11 +46,11 @@ namespace CPPUtils::DataStructures::Buffers {
         T* data;
 
     public:
-        virtual Buffer(size_t size) : buffer_size(size), data(nullptr) {
+        Buffer(size_t size) : buffer_size(size), data(nullptr) {
             //
         }
 
-        virtual Buffer(const Buffer<T>& buffer) = 0;
+        Buffer(const Buffer<T>& buffer) = 0;
 
         virtual ~Buffer() = 0;
 
@@ -78,32 +78,32 @@ namespace CPPUtils::DataStructures::Buffers {
     };
 
     template<typename T>
-    class CPUBuffer : public Buffer<T> final {
+    class CPUBuffer final : public Buffer<T> {
     public:
         CPUBuffer(size_t size) : Buffer<T>(size) {
-            data = new T[size];
+            this->data = new T[size];
         }
 
         CPUBuffer(const CPUBuffer<T>& buffer) : Buffer<T>(buffer.size()) {
-            const auto N = size() * sizeof(T);
-            std::memcpy(&data[0], buffer.ptr(), N);
+            const auto N = this->size() * sizeof(T);
+            std::memcpy(&this->data[0], buffer.ptr(), N);
         }
 
         virtual ~CPUBuffer() {
-            delete[] data;
+            delete[] this->data;
         }
 
         virtual T operator[](size_t idx) const override {
-            return data[idx];
+            return this->data[idx];
         }
 
         virtual void setAllToValue(T val) override {
-            std::memset(&data[0], val, size() * sizeof(T));
+            std::memset(&this->data[0], val, this->size() * sizeof(T));
         }
 
         virtual void setContents(const std::span<T>& vals) override {
             Buffer<T>::setContents(vals);
-            std::memcpy(data, vals.data(), vals.size() * sizeof(T));
+            std::memcpy(this->data, vals.data(), vals.size() * sizeof(T));
         }
     };
 
