@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtest/gtest.h>
 
 #include <CPPUtils/LinearAlgebra/BLAS.hpp>
+#include "MatrixTestCases.hpp"
 
 using namespace CPPUtils::LinearAlgebra::BLAS;
 
