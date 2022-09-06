@@ -43,7 +43,7 @@ source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 
 # Linear Algebra
 set(LINEAR_ALGEBRA_TESTS
-  LinearAlgebra/BLAS.cpp
+  LinearAlgebra/MatrixMultiplication.cpp
 )
 source_group(Tests/LinearAlgebra FILES ${LINEAR_ALGEBRA_TESTS})
 

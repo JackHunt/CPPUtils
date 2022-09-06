@@ -103,7 +103,7 @@ namespace TestUtils::LinearAlgebra {
                 0.62090961, 0.84185181, 0.8455993 , 0.37761089,
                 0.2444823, 0.64341411, 0.89884036, 0.68741319,
                 0.53513187, 0.34634159, 0.30644915, 0.23464744
-            }
+            };
         }
 
         template<typename T>
@@ -567,7 +567,9 @@ namespace TestUtils::LinearAlgebra {
     template<typename T>
     struct MatmulAxA final : public MatmulTestCase<T, 4, 4, 4> {
         MatmulAxA() :
-            MatmulTestCase<T, 4, 4, 4>(A(), A(), AxA()) {}
+            MatmulTestCase<T, 4, 4, 4>(TestMatrices::A<T>(),
+                                       TestMatrices::A<T>(),
+                                       TestMatrices::AxA<T>()) {}
     };
 
     using MatmulCases = ::testing::Types<>;

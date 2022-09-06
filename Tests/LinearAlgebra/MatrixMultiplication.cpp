@@ -37,13 +37,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace CPPUtils::LinearAlgebra::BLAS;
 
-class BLASTestSuite : public ::testing::Test {
+class MatrixMultiplicationTestSuite : public ::testing::Test {
  protected:
     void SetUp() override {
         //
     }
 };
 
-TEST_F(BLASTestSuite, GEMMTest) {
+TEST_F(MatrixMultiplicationTestSuite, GEMMTest) {
+    //
+}
+
+TEST_F(MatrixMultiplicationTestSuite, MatrixMultiplyTest) {
+    //
+}
+
+TEST_F(MatrixMultiplicationTestSuite, MatrixMultiplyComparisonTest) {
     //
 }
