@@ -34,9 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
+#include <CPPUtils/ContainerTools/ContainerPrinting.hpp>
 #include <CPPUtils/Iterators/CountingIterator.hpp>
 
 using namespace CPPUtils::Iterators;
+using CPPUtils::ContainerTools::Printing::toString;
 
 template<typename T>
 class CountingIteratorTestSuite : public ::testing::Test {
@@ -81,16 +83,21 @@ TYPED_TEST(CountingIteratorTestSuite, CountingTest) {
     constexpr IntType b = TypeParam::Max();
 
     // Generate some expected values.
-    const IntType inc = a >= b ? -1 : 1;
     std::vector<IntType> true_vals;
-    for (IntType i = a; i < b; i += inc) {
-        true_vals.emplace_back(i);
+    if (a <= b) {
+        for (IntType i = a; i < b; i++) {
+            true_vals.emplace_back(i);
+        }
+    } else {
+        for (IntType i = a; i > b; i--) {
+            true_vals.emplace_back(i);
+        }
     }
 
     // Compare with using Counter.
     Counter<IntType> c(a, b);
     size_t idx = 0;
-    for (auto iter = c.begin(); iter != c.end(); iter++) {
+    for (auto iter = c.begin(); iter != c.end(); a < b ? iter++ : iter--) {
         ASSERT_LT(idx, true_vals.size());
         ASSERT_EQ(iter, true_vals.at(idx));
         idx++;
