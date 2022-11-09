@@ -20,6 +20,7 @@ source_group(Algorithms FILES ${ALGORITHMS_HEADERS})
 
 # ContainterTools
 set(CONTAINER_TOOLS_HEADERS
+  CPPUtils/ContainerTools/ContainerPrinting.hpp
   CPPUtils/ContainerTools/TupleTools.hpp
 )
 source_group(ContainerTools FILES ${CONTAINER_TOOLS_HEADERS})
