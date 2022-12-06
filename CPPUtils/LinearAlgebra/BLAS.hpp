@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cblas.h>
 
+#include <span>
 #include <stdexcept>
 
 namespace CPPUtils::LinearAlgebra::BLAS {
@@ -56,7 +57,7 @@ namespace CPPUtils::LinearAlgebra::BLAS {
             alpha(alpha), beta(beta),
             lda(transA ? M : K),
             ldb(transB ? K : N),
-            ldc(transA ? M : K) {
+            ldc(N) {
             //
         }
 
@@ -73,23 +74,29 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     };
 
     template<typename T>
-    inline void gemm(const T* const A, const T* const B, T* const C,
+    inline void gemm(const std::span<const T>& A,
+                     const std::span<const T>& B,
+                     const std::span<T>& C,
                      const GEMMCallConfig& cfg) {
         throw std::domain_error("Unknown data type for GEMM.");
     }
 
     template<>
-    inline void gemm(const float* const A, const float* const B, float* const C,
+    inline void gemm(const std::span<const float>& A,
+                     const std::span<const float>& B,
+                     const std::span<float>& C,
                      const GEMMCallConfig& cfg) {
         cblas_sgemm(CblasRowMajor, cfg.transA, cfg.transB, cfg.M, cfg.N, cfg.K,
-                    cfg.alpha, A, cfg.lda, B, cfg.ldb, cfg.beta, C, cfg.ldc);
+                    cfg.alpha, A.data(), cfg.lda, B.data(), cfg.ldb, cfg.beta, C.data(), cfg.ldc);
     }
 
     template<>
-    inline void gemm(const double* const A, const double* const B, double* const C,
+    inline void gemm(const std::span<const double>& A,
+                     const std::span<const double>& B,
+                     const std::span<double>& C,
                      const GEMMCallConfig& cfg) {
         cblas_dgemm(CblasRowMajor, cfg.transA, cfg.transB, cfg.M, cfg.N, cfg.K,
-                    cfg.alpha, A, cfg.lda, B, cfg.ldb, cfg.beta, C, cfg.ldc);
+                    cfg.alpha, A.data(), cfg.lda, B.data(), cfg.ldb, cfg.beta, C.data(), cfg.ldc);
     }
 
     /*
@@ -112,18 +119,24 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     };
 
     template<typename T>
-    inline void axpy(T* const Y, const T* const X, const AXPYCallConfig& cfg) {
+    inline void axpy(const std::span<T>& Y,
+                     const std::span<const T>& X,
+                     const AXPYCallConfig& cfg) {
         throw std::domain_error("Unknown data type for AXPY.");
     }
 
     template<>
-    inline void axpy(float* const Y, const float* const X, const AXPYCallConfig& cfg) {
-        cblas_saxpy(cfg.N, cfg.alpha, X, cfg.incx, Y, cfg.incy);
+    inline void axpy(const std::span<float>& Y,
+                     const std::span<const float>& X,
+                     const AXPYCallConfig& cfg) {
+        cblas_saxpy(cfg.N, cfg.alpha, X.data(), cfg.incx, Y.data(), cfg.incy);
     }
 
     template<>
-    inline void axpy(double* const Y, const double* const X, const AXPYCallConfig& cfg) {
-        cblas_daxpy(cfg.N, cfg.alpha, X, cfg.incx, Y, cfg.incy);
+    inline void axpy(const std::span<double>& Y,
+                     const std::span<const double>& X,
+                     const AXPYCallConfig& cfg) {
+        cblas_daxpy(cfg.N, cfg.alpha, X.data(), cfg.incx, Y.data(), cfg.incy);
     }
 
     /*
@@ -146,18 +159,18 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     };
 
     template<typename T>
-    inline void scal(T* const X, const SCALCallConfig& cfg) {
+    inline void scal(const std::span<T>& X, const SCALCallConfig& cfg) {
         throw std::domain_error("Unknown data type for SCAL.");
     }
 
     template<>
-    inline void scal(float* const X, const SCALCallConfig& cfg) {
-        cblas_sscal(cfg.N, cfg.alpha, X, cfg.incx);
+    inline void scal(const std::span<float>& X, const SCALCallConfig& cfg) {
+        cblas_sscal(cfg.N, cfg.alpha, X.data(), cfg.incx);
     }
 
     template<>
-    inline void scal(double* const X, const SCALCallConfig& cfg) {
-        cblas_dscal(cfg.N, cfg.alpha, X, cfg.incx);
+    inline void scal(const std::span<double>& X, const SCALCallConfig& cfg) {
+        cblas_dscal(cfg.N, cfg.alpha, X.data(), cfg.incx);
     }
 }
 

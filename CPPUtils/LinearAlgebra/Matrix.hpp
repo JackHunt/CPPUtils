@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/DataStructures/Buffers.hpp>
 #include <CPPUtils/LinearAlgebra/BLAS.hpp>
 
-using namespace CPPUtils::DataStructures::Buffers;
+using CPPUtils::DataStructures::Buffers::Buffer;
+using CPPUtils::DataStructures::Buffers::CPUBuffer;
 
 namespace CPPUtils::LinearAlgebra {
 
@@ -88,12 +89,12 @@ namespace CPPUtils::LinearAlgebra {
             //
         }
 
-        virtual const T* data() const {
-            return elements->ptr();
+        virtual std::span<const T> data() const {
+            return {elements->ptr(), rows * columns};
         }
 
-        virtual T* data() {
-            return elements->ptr();
+        virtual std::span<T> data() { // TODO: Remove duplication.
+            return {elements->ptr(), rows * columns};
         }
 
         virtual std::shared_ptr<Buffer<T>> getElementBuffer() const {
@@ -136,7 +137,7 @@ namespace CPPUtils::LinearAlgebra {
             elements->setAllToValue(val);
         }
 
-        void setContents(const std::span<T>& vals) {
+        void setContents(const std::span<const T>& vals) {
             elements->setContents(vals);
         }
 
@@ -150,17 +151,17 @@ namespace CPPUtils::LinearAlgebra {
      */
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator*(const Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
-        const auto M = lhs.rows();
-        const auto K = lhs.columns();
-        const auto N = rhs.columns();
+        const auto M = lhs.num_rows();
+        const auto K = lhs.num_columns();
+        const auto N = rhs.num_columns();
 
-        if (K != rhs.rows()) {
+        if (K != rhs.num_rows()) {
             throw std::runtime_error(
                 "Matrix inner dimensions must match.");
         }
 
         Matrix<T, D> A(M, N);
-        BLAS::gemm(lhs.ptr(), rhs.ptr(), A.ptr(),
+        BLAS::gemm(lhs.data(), rhs.data(), A.data(),
                    BLAS::GEMMCallConfig(M, K, N,
                                         lhs.is_transposed(),
                                         rhs.is_transposed()));
@@ -169,8 +170,8 @@ namespace CPPUtils::LinearAlgebra {
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator+(const Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
-        const auto N = lhs.rows() * lhs.columns();
-        const auto M = rhs.rows() * rhs.columns();
+        const auto N = lhs.num_rows() * lhs.num_columns();
+        const auto M = rhs.num_rows() * rhs.num_columns();
 
         if (M != N) {
             throw std::runtime_error(
@@ -178,15 +179,15 @@ namespace CPPUtils::LinearAlgebra {
         }
 
         Matrix<T, D> A(lhs);
-        BLAS::axpy(A.ptr(), rhs.ptr(), BLAS::AXPYCallConfig(1.0, N));
+        BLAS::axpy(A.data(), rhs.data(), BLAS::AXPYCallConfig(1.0, N));
 
         return A;
     }
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator-(const Matrix<T, D>& lhs, const Matrix<T, D>& rhs) {
-        const auto N = lhs.rows() * lhs.columns();
-        const auto M = rhs.rows() * rhs.columns();
+        const auto N = lhs.num_rows() * lhs.num_columns();
+        const auto M = rhs.num_rows() * rhs.num_columns();
 
         if (M != N) {
             throw std::runtime_error(
@@ -194,7 +195,7 @@ namespace CPPUtils::LinearAlgebra {
         }
 
         Matrix<T, D> A(lhs);
-        BLAS::axpy(A.ptr(), rhs.ptr(), BLAS::AXPYCallConfig(-1.0, N));
+        BLAS::axpy(A.data(), rhs.data(), BLAS::AXPYCallConfig(-1.0, N));
 
         return A;
     }
@@ -227,7 +228,7 @@ namespace CPPUtils::LinearAlgebra {
     Matrix<T, D> operator*(const Matrix<T, D>& lhs, T rhs) {
         Matrix<T, D> A(lhs);
 
-        const auto N = lhs.rows() * lhs.columns();
+        const auto N = lhs.num_rows() * lhs.num_columns();
         BLAS::scal(A.data(), BLAS::SCALCallConfig(rhs, N));
 
         return A;
@@ -240,7 +241,7 @@ namespace CPPUtils::LinearAlgebra {
 
     template<typename T, Util::DeviceType D>
     Matrix<T, D> operator+(const Matrix<T, D>& lhs, T rhs) {
-        Matrix<T, D> A(lhs.rows(), lhs.columns());
+        Matrix<T, D> A(lhs.num_rows(), lhs.num_columns());
         A->setAllToValue(rhs);
         return lhs + A;
     }

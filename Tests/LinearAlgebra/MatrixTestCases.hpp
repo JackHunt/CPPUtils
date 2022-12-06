@@ -61,8 +61,10 @@ namespace TestUtils::LinearAlgebra {
             }
 
             template<DeviceType D = DeviceType::CPU>
-            const Matrix<T, D>& asMatrix() const {
-                //
+            const Matrix<T, D> asMatrix() const {
+                Matrix<T, D> mat(Rows, Cols);
+                mat.setContents(elems);
+                return mat;
             }
         };
 

@@ -35,23 +35,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/LinearAlgebra/BLAS.hpp>
 #include "MatrixTestCases.hpp"
 
+using namespace CPPUtils::LinearAlgebra;
 using namespace CPPUtils::LinearAlgebra::BLAS;
+using namespace TestUtils::LinearAlgebra;
 
+template <typename T>
 class MatrixMultiplicationTestSuite : public ::testing::Test {
+ public:
+    using TestCase = T;
+
  protected:
     void SetUp() override {
         //
     }
 };
 
-TEST_F(MatrixMultiplicationTestSuite, GEMMTest) {
-    //
+TYPED_TEST_SUITE(MatrixMultiplicationTestSuite, MatmulCases<float>);
+
+TYPED_TEST(MatrixMultiplicationTestSuite, GEMMTest) {
+    const auto A = typename TypeParam::A();
+    const auto B = typename TypeParam::B();
+    const auto C = typename TypeParam::C();
+
+    const auto M = A.Rows;
+    const auto K = A.Cols;
+    const auto N = B.Cols;
+
+    auto C_out = decltype(C.elems)();
+
+    GEMMCallConfig cfg(M, K, N);
+    gemm<float>(A.elems, B.elems, C_out, cfg);
+
+    for (size_t n = 0; n < M * N; n++) {
+      EXPECT_FLOAT_EQ(C.elems[n], C_out[n]);
+    }
 }
 
-TEST_F(MatrixMultiplicationTestSuite, MatrixMultiplyTest) {
-    //
-}
+TYPED_TEST(MatrixMultiplicationTestSuite, MatrixMultiplyTest) {
+    const auto A = typename TypeParam::A().asMatrix();
+    const auto B = typename TypeParam::B().asMatrix();
+    const auto C = typename TypeParam::C().asMatrix();
 
-TEST_F(MatrixMultiplicationTestSuite, MatrixMultiplyComparisonTest) {
-    //
+    const auto D = A * B;
+
+    const auto C_elems = C.data();
+    const auto D_elems = D.data();
+
+    for (size_t n = 0; n < C.num_rows() * C.num_columns(); n++) {
+      EXPECT_FLOAT_EQ(C_elems[n], D_elems[n]);
+    }
 }
