@@ -97,7 +97,7 @@ add_custom_target(${PROJECT_NAME}_ SOURCES ${ALL_HEADERS})
 # Add option to build examples.
 option(BUILD_EXAMPLES "Build Examples?" OFF)
 if(BUILD_EXAMPLES)
-  add_subdirectory(Examples)
+  add_subdirectory(examples)
 endif(BUILD_EXAMPLES)
 
 # Add options to build examples.
