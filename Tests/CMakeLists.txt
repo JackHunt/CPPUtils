@@ -92,7 +92,7 @@ foreach(test_fname ${ALL_TESTS})
     CXX_EXTENSIONS OFF
   )
 
-  target_link_libraries(${test_name} GTest::gtest_main)
+  target_link_libraries(${test_name} GTest::gtest_main blas lapack) # TODO: Dont link blas and lapack for each test.
   
   gtest_discover_tests(${test_name})
 endforeach()
