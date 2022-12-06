@@ -45,20 +45,21 @@ namespace CPPUtils::DataStructures::Buffers {
         const size_t buffer_size;
         T* data;
 
-    public:
+    protected:
         Buffer(size_t size) : buffer_size(size), data(nullptr) {
             //
         }
 
-        Buffer(const Buffer<T>& buffer) = 0;
+    public:
+        virtual ~Buffer() {
+            //
+        }
 
-        virtual ~Buffer() = 0;
-
-        virtual T operator[](size_t idx) = 0;
+        virtual T operator[](size_t idx) const = 0;
 
         virtual void setAllToValue(T) = 0;
 
-        virtual void setContents(const std::span<T>& vals) {
+        virtual void setContents(const std::span<const T>& vals) {
             if (vals.size() != buffer_size) {
                 throw std::length_error("Incorrect value count.");
             }
@@ -89,19 +90,19 @@ namespace CPPUtils::DataStructures::Buffers {
             std::memcpy(&this->data[0], buffer.ptr(), N);
         }
 
-        virtual ~CPUBuffer() {
+        ~CPUBuffer() {
             delete[] this->data;
         }
 
-        virtual T operator[](size_t idx) const override {
+        T operator[](size_t idx) const override {
             return this->data[idx];
         }
 
-        virtual void setAllToValue(T val) override {
+        void setAllToValue(T val) override {
             std::memset(&this->data[0], val, this->size() * sizeof(T));
         }
 
-        virtual void setContents(const std::span<T>& vals) override {
+        void setContents(const std::span<const T>& vals) override {
             Buffer<T>::setContents(vals);
             std::memcpy(this->data, vals.data(), vals.size() * sizeof(T));
         }
