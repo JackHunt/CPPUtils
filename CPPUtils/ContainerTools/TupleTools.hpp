@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2020 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstddef>
 
 namespace CPPUtils::ContainerTools::Tuple {
+    /**
+     * @brief Applies a lambda to each element of a given tuple.
+     * 
+     * Example of usage.
+     * 
+     *     auto tuple = std::make_tuple(1, 2.0, -3, -2.5);
+     *     const auto a = -5.0;
+     *     tupleFor(tuple, [&a](size_t idx, auto &elem) {
+     *         elem *= 2 + a;
+     *     });
+     * 
+     * @tparam T Type of the element to apply the lambda to.
+     * @tparam F Type of the lambda to apply to the element of type `T`.
+     * @tparam S Tuple indices.
+     * @param tuple The tuple to apply the lambda to.
+     * @param func The lambda to apply.
+     */
     template<typename T, typename F, std::size_t ...S>
     constexpr void tupleFor(T &tuple, const F &func, std::index_sequence<S...>) {
         (func(std::integral_constant<size_t, S>{}, std::get<S>(tuple)),...);
     }
 
+    /**
+     * @brief Applies a lambda to each element of a given tuple.
+     * 
+     * Example of usage.
+     * 
+     *     auto tuple = std::make_tuple(1, 2.0, -3, -2.5);
+     *     const auto a = -5.0;
+     *     tupleFor(tuple, [&a](size_t idx, auto &elem) {
+     *         elem *= 2 + a;
+     *     });
+     * 
+     * @tparam T Type of the element to apply the lambda to.
+     * @tparam F Type of the lambda to apply to the element of type `T`
+     * @param tuple The tuple to apply the lambda to.
+     * @param func The lambda to apply.
+     */
     template<typename ...T, typename F>
     constexpr void tupleFor(std::tuple<T...> &tuple, const F &func) {
         tupleFor(tuple, std::forward<const F>(func), std::make_index_sequence<sizeof...(T)>{});
