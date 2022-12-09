@@ -41,6 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace CPPUtils::DataStructures::Graphs {
 
+    /**
+     * @brief A class representing an outward edge in a directed graph.
+     * 
+     * @tparam T Vertex type.
+     * @tparam U Weight type.
+     */
     template<typename T, typename U = double>
     class OutwardEdge final {
     private:
@@ -48,24 +54,52 @@ namespace CPPUtils::DataStructures::Graphs {
         U weight;
 
     public:
+        /**
+         * @brief Construct a new Outward Edge object.
+         * 
+         * @param vertex Vertex that this edge connects to.
+         * @param weight Weight that this edge connects to `vertex` with.
+         */
         OutwardEdge(const T& vertex, U weight) :
             vertex(vertex),
             weight(weight) {
             //
         }
 
+        /**
+         * @brief Get the Vertex object that the edge connects to.
+         * 
+         * @return const T& Target Graph vertex.
+         */
         const T& getVertex() const {
             return vertex;
         }
 
+        /**
+         * @brief Get the Weight that this edge connects to the vertex with.
+         * 
+         * @return U Edge weight.
+         */
         U getWeight() const {
             return weight;
         }
     };
 
+    /**
+     * @brief An Adjacency List of outward edges in a directed graph.
+     * 
+     * @tparam T Vertex type.
+     * @tparam U Edge type.
+     */
     template<typename T, typename U = double>
     using AdjacencyList = std::vector<OutwardEdge<T, U>>;
 
+    /**
+     * @brief A simple, undirected graph.
+     * 
+     * @tparam T Vertex type.
+     * @tparam U Edge type.
+     */
     template<typename T, typename U = double>
     class Graph {
     protected:
@@ -88,23 +122,57 @@ namespace CPPUtils::DataStructures::Graphs {
         }
 
     public:
+        /**
+         * @brief The edge type that forms a connection in a graph.
+         * 
+         */
         using EdgeType = OutwardEdge<T, U>;
 
+        /**
+         * @brief Construct a new Graph object
+         * 
+         */
         Graph() :
             directed(false) {
             //
         }
 
+        /**
+         * @brief Determines if the vertex `a` exists in the graph.
+         * 
+         * No-op if the vertex `a` already exists in the graph.
+         * 
+         * @param a The query vertex.
+         * @return true If `a` is a vertex in the graph.
+         * @return false If `a` is not a vertex in the graph.
+         */
         bool vertexExists(const T& a) const {
             return edges.find(a) != edges.end();
         }
 
+        /**
+         * @brief Adds a vertex to the graph.
+         * 
+         * The vertex `a` has no edges until they are explicitly added.
+         * 
+         * @param a The vertex to add.
+         */
         void addVertex(const T& a) {
             if (!vertexExists(a)) {
                 edges[a] = AdjacencyList<T, U>();
             }
         }
 
+        /**
+         * @brief Removes a vertex from the graph.
+         * 
+         * When the vertex `a` is removed from the graph, its entries in other
+         * vertices adjacency lists are also removed.
+         * 
+         * No-op if the vertex `a` does not exist in the graph.
+         * 
+         * @param a The vertex to remove.
+         */
         void removeVertex(const T& a) {
             // If it doesn't exist, early out.
             if (!vertexExists(a)) {
@@ -120,6 +188,17 @@ namespace CPPUtils::DataStructures::Graphs {
             edges.erase(a);
         }
 
+        /**
+         * @brief Adds an edge with `weight` into the graph from vertex `a`,
+         * to vertex `b`.
+         * 
+         * If either `a` or `b` do not exist in the graph, then they are added
+         * prior to creating the edge.
+         * 
+         * @param a The source vertex.
+         * @param b The sink vertex.
+         * @param weight The weight of the edge.
+         */
         void addEdge(const T& a, const T& b, U weight) {
             // Add a if it doesn't exist.
             if (!vertexExists(a)) {
@@ -140,6 +219,14 @@ namespace CPPUtils::DataStructures::Graphs {
             }
         }
 
+        /**
+         * @brief Removes the edge between vertex `a` and vertex `b`.
+         * 
+         * No-op if either `a` or `b` are not vertices in the graph.
+         * 
+         * @param a The source vertex.
+         * @param b The sink vertex.
+         */
         void removeEdge(const T& a, const T& b) {
             // Early out if either doesn't exist.
             if (!vertexExists(a) || !vertexExists(b)) {
@@ -155,10 +242,24 @@ namespace CPPUtils::DataStructures::Graphs {
             }
         }
 
+        /**
+         * @brief Provides the vertex set cardinality of the graph.
+         * 
+         * @return size_t The number of vertices in the graph.
+         */
         size_t getVertexCardinality() const {
             return edges.size();
         }
 
+        /**
+         * @brief Provides the adjacency list of a given vertex `a`.
+         * 
+         * If `a` is not a vertex in the graph, then an empty adjacency
+         * list is returned.
+         * 
+         * @param a The vertex for which the adjacency list is required.
+         * @return const AdjacencyList<T, U>& The adjacency list of vertex `a`.
+         */
         const AdjacencyList<T, U>& getAdjacencyList(const T& a) const {
             // If the vertex doesn't exist, return an empty adjacency list.
             if (!vertexExists(a)) {
@@ -169,6 +270,11 @@ namespace CPPUtils::DataStructures::Graphs {
             return edges.at(a);
         }
 
+        /**
+         * @brief Provides the vertex set of the graph.
+         * 
+         * @return const std::vector<T> The set of vertices in the graph.
+         */
         const std::vector<T> getVertices() const {
             // Pull out the map keys.
             std::vector<T> vertices;
@@ -179,11 +285,23 @@ namespace CPPUtils::DataStructures::Graphs {
             return vertices;
         }
 
+        /**
+         * @brief Determines if the graph is directed.
+         * 
+         * @return true If the graph is directed.
+         * @return false If the graph is undirected.
+         */
         const bool isDirected() const {
             return directed;
         }
     };
 
+    /**
+     * @brief A simple directed graph.
+     * 
+     * @tparam T Vertex type.
+     * @tparam U Edge type.
+     */
     template<typename T, typename U = double>
     class DirectedGraph : public Graph<T, U> {
     public:
