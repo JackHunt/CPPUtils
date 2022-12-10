@@ -11,7 +11,6 @@ endif(MSVC)
 
 # Add the example build targets.
 add_executable(CountingIteratorExample CountingIteratorExample.cpp)
-add_executable(CSVExample CSVExample.cpp)
 add_executable(SampleStatisticsExample SampleStatisticsExample.cpp)
 add_executable(SplitOnDelimiterExample SplitOnDelimiterExample.cpp)
 add_executable(ZipIteratorExample ZipIteratorExample.cpp)
