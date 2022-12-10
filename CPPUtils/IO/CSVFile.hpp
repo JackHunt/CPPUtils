@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018,2019 Jack Miles Hunt
+Copyright (c) 2022 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -46,10 +46,62 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/Iterators/ZipIterator.hpp>
 
 namespace CPPUtils::IO {
+
+    /**
+     * @brief A CSV file representation that supports I/O to disk.
+     * 
+     * Supports real, integer, boolean and string types.
+     * 
+     * Example of use; generate two files, write them to disk, read
+     * them back from disk, combine them and write the combined CSV
+     * to disk.
+     * 
+     *     // Make two empty CSV files.
+     *     CSV csvA, csvB;
+     *     
+     *     // Make a string of parseable types and add to the file.
+     *     const auto a = "3.14, True, 2, 6.28, abc";
+     *     csvA.appendRow(a);
+     *     
+     *     // Same again.
+     *     const auto b = "6.28, False, -2, 3.14, cba";
+     *     csvB.appendRow(b);
+     *     
+     *     // Write files out.
+     *     csvA.writeToDisk("a.csv");
+     *     csvB.writeToDisk("b.csv");
+     *     
+     *     // Create new CSVFile and read in the files.
+     *     CSV c;
+     *     c.readFromDisk("a.csv");
+     *     c.readFromDisk("b.csv");
+     *     
+     *     // Write out new combined CSV.
+     *     const auto lines = c.getDataString();
+     *     for (const auto &line : lines) {
+     *         std::cout << line << std::endl;
+     *     }
+     *     c.writeToDisk("c.csv");
+     *     
+     *     // Get numeric types only and print.
+     *     const auto numericRows = c.getDataNumeric();
+     *     for (const auto &row : numericRows) {
+     *         for (auto v : row) {
+     *             std::cout << v << " ";
+     *         }
+     *         std::cout << std::endl;
+     *     }
+     * 
+     * @tparam R Real type.
+     * @tparam I Integer type.
+     */
     template<typename R, typename I>
     class CSVFile {
     public:
-        // Parseable token types.
+        /**
+         * @brief Parseable token types.
+         * 
+         */
         enum class ElementType : short {
             REAL,
             INTEGER,
@@ -57,8 +109,16 @@ namespace CPPUtils::IO {
             STRING
         };
 
-        // Elements can be Real, Integer, Boolean or String.
+        /**
+         * @brief Elements can be Real, Integer, Boolean or String.
+         * 
+         */
         using CSVElement = std::variant<R, I, bool, std::string>; 
+
+        /**
+         * @brief A row is a vector of legal element types.
+         * 
+         */
         using CSVRow = std::vector<CSVElement>;
 
         // Clean up stream ptrs.
@@ -72,17 +132,17 @@ namespace CPPUtils::IO {
         // CSV lines stored here.
         std::vector<CSVRow> data;
 
-      protected:
-          template<typename U>
-          static U getRawFromElement(const CSVElement &element) {
-              try {
-                  return std::get<U>(element);
-              }
-              catch (const std::invalid_argument &e) {
-                  std::cerr << "CSV: Error extracting element. Incorrect type." << std::endl;
-                  throw e;
-              }
-          }
+    protected:
+        template<typename U>
+        static U getRawFromElement(const CSVElement &element) {
+            try {
+                return std::get<U>(element);
+            }
+            catch (const std::invalid_argument &e) {
+                std::cerr << "CSV: Error extracting element. Incorrect type." << std::endl;
+                throw e;
+            }
+        }
 
         CSVRow parseTokens(const std::vector<std::string> &tokens) {
             if (types.size() != 0 && types.size() != tokens.size()) {
@@ -223,18 +283,46 @@ namespace CPPUtils::IO {
         }
 
     public:
+        /**
+         * @brief Construct a new CSVFile object with no data.
+         * 
+         * Token types are inferred on first addition of a data row
+         * or first read of a CSV from disk.
+         * 
+         */
         CSVFile() {
             //
         }
 
+        /**
+         * @brief Construct a new CSVFile object, specifying the token types
+         * expected.
+         * 
+         * @param types Token types (`ElementType`).
+         */
         CSVFile(const std::vector<ElementType> &types) : types(types) {
             //
         }
 
+        /**
+         * @brief Destroy the CSVFile object
+         * 
+         */
         virtual ~CSVFile() {
             //
         }
-        
+
+        /**
+         * @brief Reads a CSV file from disk and places the data into
+         * the instantiated `CSVFile` object.
+         * 
+         * If the `CSVFile` object already contains data or has been
+         * instantiated with specified token types, then parsed
+         * tokens must have types matching that existing data or
+         * specified token types.
+         * 
+         * @param fileName File name/path of the CSV file to read.
+         */
         void readFromDisk(const std::string &fileName) {
             // Import delimiter tokenizing routine.
             using CPPUtils::StringManipulation::splitOnDelimiter;
@@ -263,6 +351,11 @@ namespace CPPUtils::IO {
             }
         }
 
+        /**
+         * @brief Writes the `CSVFile` objects data to a CSV file on disk.
+         * 
+         * @param fileName The file name/path of the resultant CSV file.
+         */
         void writeToDisk(const std::string &fileName) const {
             // To zip elements and types.
             using CPPUtils::Iterators::ZipperFactory;
@@ -288,6 +381,17 @@ namespace CPPUtils::IO {
             }
         }
 
+        /**
+         * @brief Parses a string as a CSV file row and adds it to
+         * the `CSVFile` objects data as a new row.
+         * 
+         * If the `CSVFile` object already contains data or has been
+         * instantiated with specified token types, then parsed
+         * tokens must have types matching that existing data or
+         * specified token types.
+         * 
+         * @param line String of comma separated tokens.
+         */
         void appendRow(const std::string &line) {
             // Import delimiter tokenizing routine.
             using CPPUtils::StringManipulation::splitOnDelimiter;
@@ -297,11 +401,31 @@ namespace CPPUtils::IO {
             data.push_back(row);
         }
 
+        /**
+         * @brief Appends a `CSVRow` instance to the `CSVFile` objects data,
+         * as a new row.
+         * 
+         * If the `CSVFile` object already contains data or has been
+         * instantiated with specified token types, then the tokens in
+         * `row` must have types matching that existing data or
+         * specified token types.
+         * 
+         * @param row The row to append to the `CSVFile`.
+         */
         void appendRow(const CSVRow &row) {
             verifyRow(row);
             data.push_back(row);
         }
 
+        /**
+         * @brief Appends another `CSVFile` object to the `CSVFile`.
+         * 
+         * If the `CSVFile` object already contains data or has been
+         * instantiated with specified token types, then the token types in
+         * `csvFile` must match that existing data or specified token types.
+         * 
+         * @param csvFile The `CSVFile` to append.
+         */
         void append(const CSVFile &csvFile) {
             for (const auto &row : csvFile.getData()) {
                 verifyRow(row);
@@ -309,18 +433,29 @@ namespace CPPUtils::IO {
             }
         }
 
+        /**
+         * @brief Provides access to the data held by the `CSVFile` object.
+         * 
+         * @return const std::vector<CSVRow>& The internal `CSVFile` data.
+         */
         const std::vector<CSVRow> &getData() const {
             return data;
         }
 
-        std::vector< std::vector<R> > getDataNumeric() const {
+        /**
+         * @brief Filters the `CSVFile` for numeric data only and returns
+         * the result as real values.
+         * 
+         * @return std::vector<std::vector<R>> The filtered, numeric only data.
+         */
+        std::vector<std::vector<R>> getDataNumeric() const {
             // To zip elements and types.
             using CPPUtils::Iterators::ZipperFactory;
 
             std::vector< std::vector<R> > outNumeric;
             for (const auto &row : data) {
                 std::vector<R> numericRow;
-                const auto zipper = ZipperFactory< CSVRow, std::vector<ElementType> >()(row, types);
+                const auto zipper = ZipperFactory<CSVRow, std::vector<ElementType>>()(row, types);
                 for (const auto &[v, t] : zipper) {
                     if (*t == ElementType::REAL) {
                         numericRow.push_back(getRawFromElement<R>(*v));
@@ -335,6 +470,12 @@ namespace CPPUtils::IO {
             return outNumeric;
         }
 
+        /**
+         * @brief Filters the `CSVFile` for string data only and returns
+         * the result.
+         * 
+         * @return std::vector<std::string> The filtered, string only data.
+         */
         std::vector<std::string> getDataString() const {
             std::vector<std::string> outStrings;
             for (const auto &row : data) {
@@ -343,10 +484,20 @@ namespace CPPUtils::IO {
             return outStrings;
         }
 
+        /**
+         * @brief Provides the number of rows in the `CSVFile`.
+         * 
+         * @return size_t Row count.
+         */
         size_t getNumRows() const {
             return data.size();
         }
 
+        /**
+         * @brief Provides the token types of the `CSVFile`.
+         * 
+         * @return const std::vector<ElementType>& Token types.
+         */
         const std::vector<ElementType> &getDataTypes() const {
             return types;
         }
