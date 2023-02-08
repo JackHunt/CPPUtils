@@ -39,8 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 
 namespace CPPUtils::LinearAlgebra::BLAS {
-    /*
-     * GEMM
+    /**
+     * @brief A simple configuration struct that defines a matrix
+     * multiplication via the BLAS GEMM operation.
+     * 
+     * Row-major ordering is assumed.
+     * 
      */
     struct GEMMCallConfig final {
         const unsigned int M, K, N;
@@ -48,6 +52,23 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         const float alpha, beta;
         const unsigned int lda, ldb, ldc;
 
+        /**
+         * @brief Construct a new GEMMCallConfig object.
+         * 
+         * Specifies a GEMM matrix multiplication between an MxK Matrix
+         * and a KxN Matrix, yielding an MxN Matrix (assuming there are
+         * no transpositions).
+         * 
+         * @param M The first dimension of the LHS Matrix.
+         * @param K The second dimension of the LHS Matrix (and first of
+         * the RHS Matrix).
+         * @param N The second dimension of the RHS Matrix.
+         * @param transA Whether to transpose the LHS Matrix.
+         * @param transB Whether to transpose the RHS Matrix.
+         * @param alpha Scalar multiplier for the product.
+         * @param beta Scalar multiplier for addition of the output Matrix to
+         * the product.
+         */
         GEMMCallConfig(unsigned int M, unsigned int K, unsigned int N,
                        bool transA = false, bool transB = false,
                        float alpha = 1.0, float beta = 0.0) : 
@@ -61,6 +82,26 @@ namespace CPPUtils::LinearAlgebra::BLAS {
             //
         }
 
+        /**
+         * @brief Construct a new GEMMCallConfig object.
+         * 
+         * Specifies a GEMM matrix multiplication between an MxK Matrix
+         * and a KxN Matrix, yielding an MxN Matrix (assuming there are
+         * no transpositions).
+         * 
+         * @param M The first dimension of the LHS Matrix.
+         * @param K The second dimension of the LHS Matrix (and first of
+         * the RHS Matrix).
+         * @param N The second dimension of the RHS Matrix.
+         * @param transA Whether to transpose the LHS Matrix.
+         * @param transB Whether to transpose the RHS Matrix.
+         * @param alpha Scalar multiplier for the product.
+         * @param beta Scalar multiplier for addition of the output Matrix to
+         * the product.
+         * @param lda The leading dimension of the LHS Matrix A.
+         * @param ldb The leading dimension of the RHS Matrix B.
+         * @param ldc The leading dimension of the output Matrix C.
+         */
         GEMMCallConfig(unsigned int M, unsigned int K, unsigned int N,
                        CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
                        float alpha, float beta,
@@ -73,6 +114,16 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         }
     };
 
+    /**
+     * @brief Executes a GEMM operation on A and B, writing
+     * output to C.
+     * 
+     * @tparam T The element type of the A, B and C Matrices.
+     * @param A The data buffer for the LHS input Matrix, A.
+     * @param B The data buffer for the RHS input Matrix, B.
+     * @param C The data buffer for the output Matrix, C.
+     * @param cfg A `GEMMCallConfig` instance specifying the GEMM operation.
+     */
     template<typename T>
     inline void gemm(const std::span<const T>& A,
                      const std::span<const T>& B,
@@ -99,25 +150,48 @@ namespace CPPUtils::LinearAlgebra::BLAS {
                     cfg.alpha, A.data(), cfg.lda, B.data(), cfg.ldb, cfg.beta, C.data(), cfg.ldc);
     }
 
-    /*
-     * AXPY
+    /**
+     * @brief 
+     * 
      */
     struct AXPYCallConfig final {
         const unsigned int N;
         const float alpha;
         const unsigned int incx, incy;
 
+        /**
+         * @brief Construct a new AXPYCallConfig object
+         * 
+         * @param N 
+         * @param alpha 
+         */
         AXPYCallConfig(unsigned int N, float alpha) :
             N(N), alpha(alpha), incx(1), incy(1) {
              //
         }
 
+        /**
+         * @brief Construct a new AXPYCallConfig object
+         * 
+         * @param N 
+         * @param alpha 
+         * @param incx 
+         * @param incy 
+         */
         AXPYCallConfig(unsigned int N, float alpha, unsigned int incx, unsigned int incy) :
             N(N), alpha(alpha), incx(incx), incy(incy) {
             //
         }
     };
 
+    /**
+     * @brief 
+     * 
+     * @tparam T 
+     * @param Y 
+     * @param X 
+     * @param cfg 
+     */
     template<typename T>
     inline void axpy(const std::span<T>& Y,
                      const std::span<const T>& X,
@@ -139,8 +213,9 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         cblas_daxpy(cfg.N, cfg.alpha, X.data(), cfg.incx, Y.data(), cfg.incy);
     }
 
-    /*
-     * SCAL
+    /**
+     * @brief 
+     * 
      */
     struct SCALCallConfig final {
         const unsigned int N;
@@ -158,6 +233,13 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         }
     };
 
+    /**
+     * @brief 
+     * 
+     * @tparam T 
+     * @param X 
+     * @param cfg 
+     */
     template<typename T>
     inline void scal(const std::span<T>& X, const SCALCallConfig& cfg) {
         throw std::domain_error("Unknown data type for SCAL.");
