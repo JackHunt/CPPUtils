@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2022 Jack Miles Hunt
+Copyright (c) 2023 Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,34 +50,61 @@ extern "C" {
 }
 
 namespace CPPUtils::LinearAlgebra::LAPACK {
-    /*
-     * GETRF - Recursive LU Factorization.
+    /**
+     * @brief A simple configuration struct that defines an LU factorization
+     * of a matrix using the LAPACK GETRF routine.
+     * 
      */
     struct GETRFCallConfig final {
         const unsigned int M, N;
         const unsigned int lda;
 
-        GETRFCallConfig() = delete;
+        /**
+         * @brief Construct a new GETRFCallConfig object.
+         * 
+         * Specifies an LU factorization of an MxN matrix.
+         * 
+         * @param M The first dimension of the matrix.
+         * @param N The second dimension of the matrix.
+         */
+        GETRFCallConfig(unsigned int M, unsigned int N) :
+            GETRFCallConfig(M, N, N) {
+            //
+        }
 
-        explicit GETRFCallConfig(
-            unsigned int M, unsigned int N, unsigned int lda) :
+        /**
+         * @brief Construct a new GETRFCallConfig object.
+         * 
+         * Specifies an LU factorization of an MxN matrix.
+         * 
+         * @param M The first dimension of the matrix.
+         * @param N The second dimension of the matrix.
+         * @param lda The leading dimension of the matrix.
+         */
+        GETRFCallConfig(unsigned int M, unsigned int N, unsigned int lda) :
             M(M), N(N), lda(lda) {
             // Check LDA >= max(1,M).
             if (lda < std::max(static_cast<unsigned int>(1), M)) {
                 throw std::domain_error("LDA must be greater than or equal to max(1, M).");
             }
         }
-
-        explicit GETRFCallConfig(unsigned int M, unsigned int N) :
-            GETRFCallConfig(M, N, N) {
-            //
-        }
     };
 
+    /**
+     * @brief A simple struct describing the ececution status of a LAPACK
+     * GETRF operation.
+     * 
+     */
     struct GETRFExecutionStatus final {
         const int status;
         const std::vector<unsigned int> ipiv;
 
+        /**
+         * @brief 
+         * 
+         * @param _ipiv 
+         * @return std::vector<unsigned int> 
+         */
         static std::vector<unsigned int> process_ipiv(const std::span<int> _ipiv) {
             if (_ipiv.size() == 0) {
                 return {};
@@ -98,21 +125,42 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
             return std::move(new_ipiv);
         }
 
-        GETRFExecutionStatus() = delete;
-
+        /**
+         * @brief Construct a new GETRFExecutionStatus object.
+         * 
+         * @param status 
+         * @param ipiv 
+         */
         GETRFExecutionStatus(int status, const std::span<int> ipiv) :
             status(status), ipiv(process_ipiv(ipiv)) {
             //
         }
 
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
         bool success() const {
             return status == 0;
         }
 
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
         bool illegal_value() const {
             return status < 0;
         }
 
+        /**
+         * @brief 
+         * 
+         * @return unsigned int 
+         */
         unsigned int illegal_value_index() const {
             if (!illegal_value()) {
                 return std::numeric_limits<unsigned int>::max();
@@ -121,10 +169,21 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
             return -1 * status;
         }
 
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
         bool singular_value() const {
             return status > 0;
         }
 
+        /**
+         * @brief 
+         * 
+         * @return unsigned int 
+         */
         unsigned int singular_value_diagonal_index() const {
             if (!singular_value()) {
                 return std::numeric_limits<unsigned int>::max();
@@ -133,6 +192,11 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
             return status;
         }
 
+        /**
+         * @brief 
+         * 
+         * @return const std::vector<unsigned int> 
+         */
         const std::vector<unsigned int> ipiv_if_success() const {
             if (!success()) {
                 return {};
@@ -142,6 +206,14 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
         }
     };
 
+    /**
+     * @brief 
+     * 
+     * @tparam T 
+     * @param A 
+     * @param cfg 
+     * @return GETRFExecutionStatus 
+     */
     template<typename T>
     inline GETRFExecutionStatus getrf(std::span<T> A,
                                       const GETRFCallConfig& cfg) {
@@ -174,17 +246,34 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
         return GETRFExecutionStatus(status, ipiv);
     }
 
-    /*
-     * GESV - Solve AX = B for X via LU factorization.
+    /**
+     * @brief 
+     * 
      */
     struct GESVCallConfig final {
         const unsigned int N, NRHS;
         const unsigned int lda, ldb;
 
-        GESVCallConfig() = delete;
+        /**
+         * @brief Construct a new GESVCallConfig object
+         * 
+         * @param N 
+         */
+        GESVCallConfig(unsigned int N) :
+            GESVCallConfig(N, 1, N, N) {
+            //
+        }
 
-        explicit GESVCallConfig(unsigned int N, unsigned int NRHS,
-                                unsigned int lda, unsigned int ldb) :
+        /**
+         * @brief Construct a new GESVCallConfig object
+         * 
+         * @param N 
+         * @param NRHS 
+         * @param lda 
+         * @param ldb 
+         */
+        GESVCallConfig(unsigned int N, unsigned int NRHS,
+                       unsigned int lda, unsigned int ldb) :
             N(N), NRHS(NRHS), lda(lda), ldb(ldb) {
             // Check N >= 0.
             if (N < 0) {
@@ -206,15 +295,23 @@ namespace CPPUtils::LinearAlgebra::LAPACK {
                 throw std::domain_error("LDB must be greater than or equal to max(1, M).");
             }
         }
-
-        explicit GESVCallConfig(unsigned int N) :
-            GESVCallConfig(N, 1, N, N) {
-            //
-        }
     };
 
+    /**
+     * @brief 
+     * 
+     */
     using GESVExecutionStatus = GETRFExecutionStatus;
 
+    /**
+     * @brief 
+     * 
+     * @tparam T 
+     * @param A 
+     * @param B 
+     * @param cfg 
+     * @return GESVExecutionStatus 
+     */
     template<typename T>
     inline GESVExecutionStatus gesv(std::span<T> A, std::span<T> B,
                                     const GESVCallConfig cfg) {
