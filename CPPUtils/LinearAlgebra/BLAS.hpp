@@ -151,7 +151,8 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     }
 
     /**
-     * @brief 
+     * @brief A simple configuration struct that defines an scalar-vector product
+     * via the BLAS AXPY operation.
      * 
      */
     struct AXPYCallConfig final {
@@ -160,10 +161,13 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         const unsigned int incx, incy;
 
         /**
-         * @brief Construct a new AXPYCallConfig object
+         * @brief Construct a new AXPYCallConfig object.
          * 
-         * @param N 
-         * @param alpha 
+         * Specifies an AXPY scalar-vector product on an N-vector with coefficient
+         * alpha.
+         * 
+         * @param N The length of the vector.
+         * @param alpha The coefficient to multiply with the vector.
          */
         AXPYCallConfig(unsigned int N, float alpha) :
             N(N), alpha(alpha), incx(1), incy(1) {
@@ -173,10 +177,13 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         /**
          * @brief Construct a new AXPYCallConfig object
          * 
-         * @param N 
-         * @param alpha 
-         * @param incx 
-         * @param incy 
+         * Specifies an AXPY scalar-vector product on an N-vector with coefficient
+         * alpha.
+         * 
+         * @param N The length of the vector.
+         * @param alpha The coefficient to multiply with the vector.
+         * @param incx Input vector increment.
+         * @param incy Output vector increment.
          */
         AXPYCallConfig(unsigned int N, float alpha, unsigned int incx, unsigned int incy) :
             N(N), alpha(alpha), incx(incx), incy(incy) {
@@ -185,12 +192,12 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     };
 
     /**
-     * @brief 
+     * @brief Executes an AXPY operation on X, writing the result to Y.
      * 
-     * @tparam T 
-     * @param Y 
-     * @param X 
-     * @param cfg 
+     * @tparam T The element type of the Y and X vectors.
+     * @param Y The data buffer of the output vector.
+     * @param X The data buffer of the input vector.
+     * @param cfg An `AXPYCallConfig` instance specifying the AXPY operation.
      */
     template<typename T>
     inline void axpy(const std::span<T>& Y,
@@ -214,7 +221,8 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     }
 
     /**
-     * @brief 
+     * @brief A simple configuration struct that defines an inplace
+     * scalar-vector product via the BLAS SCAL operation.
      * 
      */
     struct SCALCallConfig final {
@@ -222,11 +230,30 @@ namespace CPPUtils::LinearAlgebra::BLAS {
         const float alpha;
         const unsigned int incx;
 
+        /**
+         * @brief Construct a new SCALCallConfig object.
+         * 
+         * Specifies an inplace SCAL scalar-vector product on an N-vector
+         * with coefficient alpha.
+         * 
+         * @param N Length of the vector.
+         * @param alpha Coefficient to multiply with the vector.
+         */
         SCALCallConfig(unsigned int N, float alpha) :
             N(N), alpha(alpha), incx(1) {
              //
         }
 
+        /**
+         * @brief Construct a new SCALCallConfig object.
+         * 
+         * Specifies an inplace SCAL scalar-vector product on an N-vector
+         * with coefficient alpha.
+         * 
+         * @param N Length of the vector.
+         * @param alpha Coefficient to multiply with the vector.
+         * @param incx Index increment.
+         */
         SCALCallConfig(unsigned int N, float alpha, unsigned int incx) :
             N(N), alpha(alpha), incx(incx) {
             //
@@ -234,11 +261,11 @@ namespace CPPUtils::LinearAlgebra::BLAS {
     };
 
     /**
-     * @brief 
+     * @brief Executes a SCAL operation on X.
      * 
-     * @tparam T 
-     * @param X 
-     * @param cfg 
+     * @tparam T The element type of X.
+     * @param X The vector to inplace scalar multiply.
+     * @param cfg A `SCALCallConfig` instance specifying the SCAL operation.
      */
     template<typename T>
     inline void scal(const std::span<T>& X, const SCALCallConfig& cfg) {
