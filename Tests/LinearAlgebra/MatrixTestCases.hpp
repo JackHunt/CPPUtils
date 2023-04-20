@@ -653,6 +653,19 @@ namespace TestUtils::LinearAlgebra {
         MatmulCase<F<T>, I<T>, FxI<T>>
     >;
 
+    template<typename T>
+    using MatrixCases = ::testing::Types<
+        A<T>,
+        B<T>,
+        C<T>,
+        D<T>,
+        E<T>,
+        F<T>,
+        G<T>,
+        H<T>,
+        I<T>
+    >;
+
 }
 
 #endif

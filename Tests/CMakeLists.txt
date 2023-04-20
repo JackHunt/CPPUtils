@@ -44,6 +44,7 @@ source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 # Linear Algebra
 set(LINEAR_ALGEBRA_TESTS
   LinearAlgebra/MatrixMultiplication.cpp
+  LinearAlgebra/ScalarVectorProduct.cpp
 )
 source_group(Tests/LinearAlgebra FILES ${LINEAR_ALGEBRA_TESTS})
 
