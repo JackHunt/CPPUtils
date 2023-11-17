@@ -39,6 +39,11 @@ using namespace CPPUtils::LinearAlgebra;
 using namespace CPPUtils::LinearAlgebra::BLAS;
 using namespace TestUtils::LinearAlgebra;
 
+template<typename T, size_t N>
+std::array<T, N> manual_axpy(const std::array<T, N>& A, T alpha) {
+    //
+}
+
 template <typename T>
 class ScalarVectorProductTestSuite : public ::testing::Test {
  public:
