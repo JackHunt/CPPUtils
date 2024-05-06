@@ -45,20 +45,6 @@ set(ITERATORS_HEADERS
 )
 source_group(Iterators FILES ${ITERATORS_HEADERS})
 
-# Add option to add Linear Algebra utils. Requires BLAS & LAPACK.
-option(ENABLE_LINEAR_ALGEBRA "Enable Linear Algebra?" OFF)
-if(ENABLE_LINEAR_ALGEBRA)
-  find_package(LAPACK REQUIRED)
-
-  set(LINEAR_ALGEBRA_HEADERS
-    CPPUtils/LinearAlgebra/BLAS.hpp
-    CPPUtils/LinearAlgebra/LAPACK.hpp
-    CPPUtils/LinearAlgebra/Matrix.hpp
-    CPPUtils/LinearAlgebra/Vector.hpp
-  )
-  source_group(LinearAlgebra FILES ${LINEAR_ALGEBRA_HEADERS})
-endif(ENABLE_LINEAR_ALGEBRA)
-
 # Statistics
 set(STATISTICS_HEADERS
   CPPUtils/Statistics/SampleStatistics.hpp
@@ -87,7 +73,6 @@ set(ALL_HEADERS
   ${DATA_STRUCTURES_HEADERS}
   ${IO_HEADERS}
   ${ITERATORS_HEADERS}
-  ${LINEAR_ALGEBRA_HEADERS}
   ${STATISTICS_HEADERS}
   ${STRING_MANIPULATION_HEADERS}
   ${TIMING_HEADERS}
@@ -100,7 +85,7 @@ if(BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif(BUILD_EXAMPLES)
 
-# Add options to build examples.
+# Add options to build tests.
 option(BUILD_TESTS "Build Tests?" OFF)
 if(BUILD_TESTS)
   add_subdirectory(Tests)

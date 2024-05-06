@@ -41,12 +41,6 @@ set(ITERATORS_TESTS
 )
 source_group(Tests/Iterators FILES ${ITERATORS_TESTS})
 
-# Linear Algebra
-set(LINEAR_ALGEBRA_TESTS
-  LinearAlgebra/MatrixMultiplication.cpp
-)
-source_group(Tests/LinearAlgebra FILES ${LINEAR_ALGEBRA_TESTS})
-
 # Statistics
 set(STATISTICS_TESTS
   Statistics/SampleStatistics.cpp

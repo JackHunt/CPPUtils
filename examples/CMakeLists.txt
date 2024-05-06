@@ -17,8 +17,3 @@ add_executable(ZipIteratorExample ZipIteratorExample.cpp)
 add_executable(TimerExample TimerExample.cpp)
 add_executable(PathFindingExample PathFindingExample.cpp)
 
-add_executable(BLASExample blas_example.cpp)
-target_link_libraries(BLASExample blas lapack)
-
-add_executable(LAPACKExample lapack_example.cpp)
-target_link_libraries(LAPACKExample blas lapack)
